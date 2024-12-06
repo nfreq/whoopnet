@@ -12,7 +12,7 @@ This flexibility allows your 20-gram robot to leverage a 100-pound brain, depend
 
 ### ROS Integration
 - **Video Feedback:** Captures and streams real-time visual data for processing by AI models.  
-- **IMU Feedback:** Provides orientation and motion data, fused with vision to enable accurate state estimation for visual-inertial odometry and navigation, supporting stability and autonomous decision-making.  
+- **IMU Feedback:** Provides orientation and motion data, fused with vision to enable accurate state estimation for visual-inertial odometry, navigation and autonomous decision-making.  
 - **Handset Input:** Enables manual control inputs from a pilot, serving as a fallback or supplement to AI operations.  
 - **RC Output:** Transmits AI-processed or pilot commands to the multirotor’s control system for execution.  
 - **Real-Time Control and Data Collection:** Facilitates real-time interactions and logs data critical for training AI models, enabling iterative improvements to system performance.
