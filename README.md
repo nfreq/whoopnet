@@ -4,7 +4,7 @@ Whoopnet is a harness for AI-driven feedback controls designed for Tiny Whoop cl
 
 While compatible with any unmodified FPV multirotor that supports ELRS and Betaflight, the project focuses on targeting sub-25-gram vehicles and advancing offboard compute capabilities to enable AI-driven models and autonomous software.  
 
-This flexibility allows your 20-gram robot to leverage a 100-pound brain, depending on your edge compute requirements, enabling scalable computational power for advanced tasks and experimentation.
+This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depending on your edge compute requirements, enabling scalable computational power for advanced tasks and experimentation.
 
 ---
 
