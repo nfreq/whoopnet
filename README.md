@@ -59,7 +59,7 @@ This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depe
 - Captures the video feed from the VRX and integrates it into the system for processing and display.  
 - **Recommendation:** 60Hz @ 1080p for calibration; 30Hz should be fine for real-time control.
 
-### ELRS RX to USB Gamepad
+### ELRS Receiver to USB Gamepad
 - Converts ELRS signals to a USB gamepad for utilization with the RC handset input and mixing capabilities.  
 - Examples: **SquidStick, RC Handset USB**, etc.
 
