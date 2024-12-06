@@ -48,7 +48,7 @@ This flexibility allows your 20-gram robot to leverage a 100-pound brain, depend
 - (Any multirotor with ELRS and a video system that supports VRX->HDMI)
 
 ### ELRS Transmitter(s)
-- Used for remote communication and control with high-speed and reliable telemetry.  
+- Used for remote communication and control with "high-speed" telemetry.  
 - Example: **BETAFPV 2.4GHZ 1W Micro RF Module (Supports CRSF over USB)**
 
 ### VRX with HDMI Output
