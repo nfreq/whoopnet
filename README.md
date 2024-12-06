@@ -52,7 +52,7 @@ This flexibility allows your 20-gram robot to leverage a 100-pound brain, depend
 - Example: **BETAFPV 2.4GHZ 1W Micro RF Module (Supports CRSF over USB)**
 
 ### VRX with HDMI Output
-- Provides a video receiver capable of streaming real-time FPV video feed through an HDMI interface.  
+- A video receiver capable of streaming real-time FPV video feed through an HDMI interface.  
 - Example: **HDZero VRX (HDZero Monitor) /w HDMI Output**
 
 ### Video Capture Device
