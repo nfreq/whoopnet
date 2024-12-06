@@ -62,3 +62,7 @@ This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depe
 ### ELRS RX to USB Gamepad
 - Converts ELRS signals to a USB gamepad for utilization with the RC handset input and mixing capabilities.  
 - Examples: **SquidStick, RC Handset USB**, etc.
+
+### RC Handset
+- For Manual Flight Control
+- Examples: RadioMaster Boxer Radio Transmitter
