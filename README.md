@@ -64,5 +64,9 @@ This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depe
 - Examples: **SquidStick, RC Handset USB**, etc.
 
 ### RC Handset
-- For Manual Flight Control
+- For Manual Flight Control and Expert Pilot Training
 - Examples: RadioMaster Boxer Radio Transmitter
+
+### FPV Goggles (Optional)
+- For Manual Flight Feedback and Expert Pilot Training
+- Examples: HDZero Goggles
