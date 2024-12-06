@@ -1,2 +1,2 @@
 # whoopnet
-general adventures with autonomous fpv
+general adventures with autonomous fpv multirotors
