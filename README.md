@@ -32,7 +32,7 @@ This flexibility allows your 20-gram robot to leverage a 100-pound brain, depend
 
 ---
 
-### Betaflight and ExpressLRS Modifications
+### Betaflight Modifications and ExpressLRS 
 - **Betaflight Modifications:** Custom changes to the flight control software to enable high-speed raw IMU telemetry, including the creation of a new IMU extended CRSF packet and dedicating the entire telemetry channel for this purpose.  
 - **ExpressLRS:** Utilizes ExpressLRS's existing F1000Hz mode to provide the necessary telemetry bandwidth for real-time data transmission.
 
