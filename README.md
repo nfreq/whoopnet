@@ -40,7 +40,7 @@ This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depe
 ## Hardware
 ### FPV Multirotors
 - Any multirotor with ELRS and a VRX that has HDMI OUT
-- Tiny Whoop class (sub-25-gram) multirotors:  
+- 65mm class (sub-25-gram) multirotors:  
   - **Mobula6 HDZero ECO 2024**  
   - **Mobula6 Freestyle HD**
 - 3.5" class (sub-250-gram) multirotors:  
