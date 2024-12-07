@@ -37,15 +37,14 @@ This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depe
 - **ExpressLRS:** Utilizes ExpressLRS's existing F1000Hz mode to provide the necessary telemetry bandwidth for real-time data transmission.
 
 ---
-
-## Hardware Requirements for Whoopnet
-
+## Hardware
 ### FPV Multirotors
-- Includes vehicles as small as Tiny Whoop class (sub-25-gram) multirotors.  
-- Examples:  
+- Any multirotor with ELRS and a VRX that has HDMI OUT
+- Tiny Whoop class (sub-25-gram) multirotors:  
   - **Mobula6 HDZero ECO 2024**  
-  - **Mobula6 Freestyle HD**  
-- (Any multirotor with ELRS and a video system that supports VRX->HDMI)
+  - **Mobula6 Freestyle HD**
+- 3.5" class (sub-250-gram) multirotors:  
+  - **Crux35 HDZero**
 
 ### ELRS Transmitter(s)
 - Used for remote communication and control with "high-speed" telemetry.  
@@ -57,7 +56,7 @@ This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depe
 
 ### Video Capture Device
 - Captures the video feed from the VRX and integrates it into the system for processing and display.  
-- **Recommendation:** 60Hz @ 1080p for calibration; 30Hz should be fine for real-time control.
+- **Recommendation:** 60Hz for calibration; 30Hz should be fine for real-time control.
 
 ### ELRS Receiver to USB Gamepad
 - Converts ELRS signals to a USB gamepad for utilization with the RC handset input and mixing capabilities.  
