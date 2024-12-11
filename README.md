@@ -1,10 +1,16 @@
 # Whoopnet
 
-Whoopnet is a harness for AI-driven feedback controls designed for Tiny Whoop class (sub-25-gram) multirotor vehicles.  
+Whoopnet transforms FPV drones into autonomous systems by harnessing offboard neural networks that process raw visual and inertial data directly into flight commands.
 
 While compatible with any unmodified FPV multirotor that supports ELRS and Betaflight, the project focuses on targeting sub-25-gram vehicles and advancing offboard compute capabilities to enable AI-driven models and autonomous software.  
 
 This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depending on your edge compute requirements, enabling scalable computational power for advanced tasks and experimentation.
+
+Challenges:
+- Unsyncronized Camera+IMU 
+- Low Frequency IMU (100hz)
+- Rolling Shutter Camera
+- Saturation of Telemetry Bandwidth via ELRS
 
 ---
 
