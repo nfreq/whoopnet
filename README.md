@@ -47,7 +47,7 @@ Challenges:
 
 ---
 ## Hardware
-### FPV Multirotors
+#### FPV Multirotors
 - Any multirotor with ELRS and a VRX that has HDMI OUT
 - 65mm class (sub-25-gram) multirotors:  
   - **Mobula6 HDZero ECO 2024**  
@@ -55,7 +55,7 @@ Challenges:
 - 3.5" class (sub-250-gram) multirotors:  
   - **Crux35 HDZero**
 
-### ELRS Transmitter(s)
+#### ELRS Transmitter(s)
 - Used for remote communication and control with "high-speed" telemetry.  
 - Example: **BETAFPV 2.4GHZ 1W Micro RF Module (Supports CRSF over USB)**
 
