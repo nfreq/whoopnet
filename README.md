@@ -1,6 +1,6 @@
 # Whoopnet
 
-Whoopnet transforms FPV drones into autonomous systems by harnessing offboard neural networks that process raw visual and inertial data directly into flight commands.
+Whoopnet transforms FPV drones into autonomous systems by harnessing off-board neural networks that process raw visual and inertial data and output RC flight commands.
 
 While compatible with any unmodified FPV multirotor that supports ELRS and Betaflight, the project focuses on targeting sub-25-gram vehicles and advancing offboard compute capabilities to enable AI-driven models and autonomous software.  
 
@@ -39,7 +39,7 @@ Challenges:
 ---
 
 ### Betaflight Modifications and ExpressLRS 
-- **Betaflight Modifications:** Custom changes to the flight control software to enable high-speed raw IMU telemetry, including the creation of a new IMU extended CRSF packet and dedicating the entire telemetry channel for this purpose.  
+- **Betaflight Modifications:** Custom changes to the flight control software to enable high-speed raw IMU telemetry, including the creation of a new IMU extended CRSF packet and dedicating the entire telemetry channel for this purpose. We also highjack the craftname field of OSD to push FC timestamp so we can attempt to synconrize the video and imu data.
 - **ExpressLRS:** Utilizes ExpressLRS's existing F1000Hz mode to provide the necessary telemetry bandwidth for real-time data transmission.
 
 ---
