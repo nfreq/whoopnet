@@ -85,7 +85,9 @@ Challenges:
 - Must run ELRS F1000HZ (1:2) for this to work. Otherwise telemetry bandwidth will saturate which results in much lower update rate.
 
 git clone https://github.com/nfreq/betaflight
+
 make arm_sdk_install
+
 make configs
 
 #### HDZero Mobula6 ECO 2024
