@@ -76,3 +76,17 @@ Challenges:
 ### FPV Goggles (Optional)
 - For Manual Flight Feedback and Expert Pilot Training
 - Examples: HDZero Goggles
+
+## Instructions
+
+### Build Betaflight
+- Modified Betaflight 4.5.1 Firmware 
+- Approx 92hz Telemetry (Includes, AccX,AccY,AccZ,VelX,VelY,VelZ,FC-Timestamp)
+- Must run ELRS F1000HZ (1:2) for this to work. Otherwise telemetry bandwidth will saturate which results in much lower update rate.
+
+git clone https://github.com/nfreq/betaflight
+make arm_sdk_install
+make configs
+
+#### HDZero Mobula6 ECO 2024
+make CRAZYBEEF4DX EXTRA_FLAGS="-D'RELEASE_NAME=4.5.1-imu-osd-mod' -DCLOUD_BUILD -DUSE_DSHOT -DUSE_OSD_HD -DUSE_PINIO -DUSE_SERIALRX -DUSE_SERIALRX_CRSF -DUSE_TELEMETRY -DUSE_TELEMETRY_CRSF -DUSE_VTX"
