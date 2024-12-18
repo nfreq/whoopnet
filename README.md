@@ -6,6 +6,8 @@ While compatible with any unmodified FPV multirotor that supports ELRS and Betaf
 
 This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depending on your edge compute requirements, enabling scalable computational power for advanced tasks and experimentation.
 
+---
+
 Challenges:
 - Unsyncronized Camera+IMU 
 - Low Frequency IMU (~100hz)
@@ -79,17 +81,21 @@ Challenges:
 
 ## Instructions
 
-### Build Betaflight
+### Build Betaflight  ( Not tested! Use caution when flight testing!!! )
 - Modified Betaflight 4.5.1 Firmware 
 - Approx 92hz Telemetry (Includes, AccX,AccY,AccZ,VelX,VelY,VelZ,FC-Timestamp)
 - Must run ELRS F1000HZ (1:2) for this to work. Otherwise telemetry bandwidth will saturate which results in much lower update rate.
 
+
+```sh
 git clone https://github.com/nfreq/betaflight
 
 make arm_sdk_install
 
 make configs
+```
 
 - HDZero Mobula6 ECO 2024
-
+```sh
 make CRAZYBEEF4DX EXTRA_FLAGS="-D'RELEASE_NAME=4.5.1-imu-osd-mod' -DCLOUD_BUILD -DUSE_DSHOT -DUSE_OSD_HD -DUSE_PINIO -DUSE_SERIALRX -DUSE_SERIALRX_CRSF -DUSE_TELEMETRY -DUSE_TELEMETRY_CRSF -DUSE_VTX"
+```
