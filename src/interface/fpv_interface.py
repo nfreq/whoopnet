@@ -3,11 +3,11 @@ import serial
 import struct
 import threading
 import time
-from typing import List
+from typing import List, Callable, Optional
 from serial.serialutil import SerialException
 import signal
 import rclpy
-from whoopnet.src.fpv_node import FpvNode
+from fpv_node import FpvNode
 
 runtime_exec = True
 
@@ -53,6 +53,14 @@ class FpvInterface(threading.Thread):
         self.attitude_data = []
         self.imu_data = []
 
+        self.device_info_callback: Optional[Callable[[tuple], None]] = None
+        self.radio_id_callback: Optional[Callable[[tuple], None]] = None
+        self.link_status_callback: Optional[Callable[[tuple], None]] = None
+        self.battery_callback: Optional[Callable[[tuple], None]] = None
+        self.attitude_callback: Optional[Callable[[tuple], None]] = None
+        self.imu_callback: Optional[Callable[[tuple], None]] = None
+       
+
         rclpy.init()
         self.ros2_node = FpvNode()
 
@@ -90,6 +98,24 @@ class FpvInterface(threading.Thread):
     
     def stop(self):
         self.running = False
+
+    def set_device_info_callback(self, callback: Callable[[tuple], None]):
+        self.device_info_callback = callback
+
+    def set_radio_id_callback(self, callback: Callable[[tuple], None]):
+        self.radio_id_callback = callback
+
+    def set_link_status_callback(self, callback: Callable[[tuple], None]):
+        self.link_status_callback = callback
+
+    def set_battery_callback(self, callback: Callable[[tuple], None]):
+        self.battery_callback = callback
+
+    def set_attitude_callback(self, callback: Callable[[tuple], None]):
+        self.attitude_callback = callback
+
+    def set_imu_callback(self, callback: Callable[[tuple], None]):
+        self.imu_callback = callback
 
     def send_channel_data(self):
         packet = self.create_packet_channels(self.channels)
@@ -250,8 +276,9 @@ class FpvInterface(threading.Thread):
 
         serial_number, hw_version, sw_version, config_param_count, config_param_protocol_version = struct.unpack(
             '>III2B', remaining_payload[:14])
-
         self.device_info = display_name, serial_number, hw_version, sw_version, config_param_count, config_param_protocol_version
+        if self.device_info_callback:
+            self.device_info_callback(self.device_info)
 
     def parse_radio_id_frame(self, payload):
         payload = payload[3:]  # Ignore [DEST] [SRC]
@@ -260,13 +287,16 @@ class FpvInterface(threading.Thread):
         packet_frequency_hz = 1 / (packet_interval_us / 1_000_000)
 
         self.radio_id_data = packet_interval_us, packet_frequency_hz, phase_shift
+        if self.radio_id_callback:
+            self.radio_id_callback(self.radio_id_data)
 
 
     def parse_link_status(self, payload):
         uplink_rssi_ant1, uplink_rssi_ant2, uplink_lq, uplink_snr, diversity_antenna, rf_mode, uplink_tx_power, downlink_rssi, downlink_lq, downlink_snr = struct.unpack(
             '>3B2b5B', payload[:10])
-
         self.link_status_data = -uplink_rssi_ant1,  -uplink_rssi_ant2, uplink_lq, uplink_snr / 4, diversity_antenna, rf_mode, uplink_tx_power, -downlink_rssi, downlink_lq, downlink_snr / 4
+        if self.link_status_callback:
+            self.link_status_callback(self.link_status_data)
 
     def parse_battery_frame(self, payload):
         voltage_mv, current_10ma = struct.unpack('>HH', payload[:4])
@@ -276,6 +306,8 @@ class FpvInterface(threading.Thread):
         voltage_v = voltage_mv / 1000
         current_a = current_10ma / 10
         self.battery_data = voltage_v,current_a,mAh_drawn,battery_percentage
+        if self.battery_callback:
+            self.battery_callback(self.battery_data)
 
     def parse_attitude_frame(self, payload):
         try:
@@ -293,6 +325,10 @@ class FpvInterface(threading.Thread):
 
             # Store parsed data
             self.attitude_data = pitch_radians, roll_radians, yaw_radians
+
+            if self.attitude_callback:
+                self.attitude_callback(self.attitude_data)
+
         except Exception as e:
             self.logger.error(f"Failed to parse attitude: {e}")
 
@@ -305,11 +341,16 @@ class FpvInterface(threading.Thread):
             acc_x = (acc_x_int - 32768) / 1000.0
             acc_y = (acc_y_int - 32768) / 1000.0
             acc_z = (acc_z_int - 32768) / 1000.0
+
             # milli-radians to radians
             vel_x = (vel_x_int - 32768) / 1000.0
             vel_y = (vel_y_int - 32768) / 1000.0
             vel_z = (vel_z_int - 32768) / 1000.0
+
             self.imu_data = acc_x,acc_y,acc_z,vel_x,vel_y,vel_z,time_stamp_ms
+
+            if self.imu_callback:
+                self.imu_callback(self.imu_data)
 
         except Exception as e:
             self.logger.error(f"Failed to parse imu packet: {e}")
@@ -330,9 +371,25 @@ def signal_handler(sig, frame):
     runtime_exec = False
 
 if __name__ == "__main__":
+    def device_info_event_handler(imu_data):
+        print(f"Device Info: {imu_data}")
+
+    def imu_event_handler(imu_data):
+        print(f"IMU Data: {imu_data}")
+
+    def attitude_event_handler(attitude_data):
+        print(f"Attitude Data: {attitude_data}")
+
+    def battery_event_handler(battery_data):
+        print(f"Battery Data: {battery_data}")
+
     signal.signal(signal.SIGINT, signal_handler)
 
     fpv_interface = FpvInterface()
+    fpv_interface.set_device_info_callback(device_info_event_handler)
+    fpv_interface.set_imu_callback(imu_event_handler)
+    fpv_interface.set_attitude_callback(attitude_event_handler)
+    fpv_interface.set_battery_callback(battery_event_handler)
     fpv_interface.start()
 
     roll = 1500
