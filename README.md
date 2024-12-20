@@ -6,6 +6,7 @@ While compatible with any unmodified FPV multirotor that supports ELRS and Betaf
 
 This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depending on your edge compute requirements, enabling scalable computational power for advanced tasks and experimentation.
 
+Read the [docs](https://github.com/nfreq/whoopnet/wiki).
 ## Goal:
 * Reproduce [Deep Drone Acrobatics](https://arxiv.org/pdf/2006.05768)
 
