@@ -8,7 +8,7 @@ This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depe
 
 Read the [docs](https://github.com/nfreq/whoopnet/wiki).
 ## Goal:
-* Reproduce [Deep Drone Acrobatics](https://arxiv.org/pdf/2006.05768)
+* Reproduce [Deep Drone Acrobatics](https://arxiv.org/pdf/2006.05768) with a **tiny whoop**.
 
 ## Challenges:
 * Un-syncronized Camera and IMU feeds
