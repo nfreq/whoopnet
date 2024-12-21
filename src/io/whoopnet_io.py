@@ -8,8 +8,8 @@ from typing import List, Callable, Optional
 import signal
 import argparse
 
-class FpvInterface(threading.Thread):
-    def __init__(self, device):
+class WhoopnetIO(threading.Thread):
+    def __init__(self, device='/dev/ttyUSB0'):
         super().__init__()
         self.daemon = True
 
@@ -61,7 +61,7 @@ class FpvInterface(threading.Thread):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
-        file_handler = logging.FileHandler("flight_control_interface.log")
+        file_handler = logging.FileHandler("whoopnet-io.log")
         console_handler = logging.StreamHandler()
         file_handler.setFormatter(formatter)
         console_handler.setFormatter(formatter)
@@ -373,10 +373,10 @@ if __name__ == "__main__":
     print(f"Use ROS: {'Enabled' if args.use_ros else 'Not Enabled'}")
 
     if args.use_ros:
-        from fpv_node import FpvNode
+        from whoopnet_node import WhoopnetNode
         import rclpy
         rclpy.init()
-        ros2_node = FpvNode()
+        ros2_node = WhoopnetNode()
 
     def device_info_event_handler(device_infpo):
         print(f"Device Info: {device_infpo}")
@@ -401,12 +401,12 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    fpv_interface = FpvInterface(args.device)
-    fpv_interface.set_imu_callback(imu_event_handler)
-    #fpv_interface.set_device_info_callback(device_info_event_handler)
-    #fpv_interface.set_attitude_callback(attitude_event_handler)
-    #fpv_interface.set_battery_callback(battery_event_handler)
-    fpv_interface.start()
+    whoopnet_io = WhoopnetIO(args.device)
+    whoopnet_io.set_imu_callback(imu_event_handler)
+    #whoopnet_io.set_device_info_callback(device_info_event_handler)
+    #whoopnet_io.set_attitude_callback(attitude_event_handler)
+    #whoopnet_io.set_battery_callback(battery_event_handler)
+    whoopnet_io.start()
 
     #---- Initialize Control Channel Values
     roll = 1500
@@ -416,11 +416,11 @@ if __name__ == "__main__":
     arm = 1000
     mode = 1500
     turtle = 2000
-    fpv_interface.set_channel_values(chT=throttle, chR=roll, chE=pitch, chA=yaw, aux1=arm, aux3=mode, aux4=turtle) # throttle, yaw, pitch, roll, arm, mode
+    whoopnet_io.set_channel_values(chT=throttle, chR=roll, chE=pitch, chA=yaw, aux1=arm, aux3=mode, aux4=turtle) # throttle, yaw, pitch, roll, arm, mode
 
     while runtime_exec:
         if args.use_ros:
             rclpy.spin_once(ros2_node, timeout_sec=0.1)
         time.sleep(0.001)
 
-    fpv_interface.stop()
+    whoopnet_io.stop()

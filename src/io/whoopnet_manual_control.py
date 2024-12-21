@@ -1,4 +1,4 @@
-from fpv_interface import FpvInterface
+from whoopnet_io import WhoopnetIO
 import time
 import logging
 from inputs import devices, get_gamepad
@@ -86,15 +86,15 @@ def manual_control_handler(fpv_interface):
 def main():
     logger.info("FPV Manual Control")
 
-    fpv_interface = FpvInterface()
-    fpv_interface.start()
+    whoopnet_io = WhoopnetIO()
+    whoopnet_io.start()
     time.sleep(1)
     
-    fpv_interface.set_channel_values(chT=throttle, chR=yaw, chE=roll, chA=pitch, aux1=arm, aux2=arm, aux3=mode, aux4=turtle)        #initialize values
+    whoopnet_io.set_channel_values(chT=throttle, chR=yaw, chE=roll, chA=pitch, aux1=arm, aux2=arm, aux3=mode, aux4=turtle)        #initialize values
 
-    manual_control_handler(fpv_interface)
+    manual_control_handler(whoopnet_io)
 
-    fpv_interface.stop()
+    whoopnet_io.stop()
 
 if __name__ == "__main__":
     main()

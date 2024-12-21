@@ -5,7 +5,7 @@ from geometry_msgs.msg import Vector3Stamped
 from cv_bridge import CvBridge
 import builtin_interfaces.msg
 
-class FpvNode(Node):
+class WhoopnetNodeIO(Node):
     def __init__(self):
         super().__init__('flight_interface_node')
         qos_profile = QoSProfile(

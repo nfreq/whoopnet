@@ -1,4 +1,4 @@
-from fpv_node import FpvNode
+from whoopnet_node import WhoopnetNode
 import rclpy
 import cv2
 import numpy as np
@@ -79,7 +79,7 @@ print(f"Video Capture FPS: {fps}")
 #map1, map2 = cv2.fisheye.initUndistortRectifyMap(K, D, np.eye(3), K, image_size, cv2.CV_16SC2)
 
 rclpy.init()
-ros_node = FpvNode()
+ros_node = WhoopnetNode()
 
 target_width, x_offset = compute_crop_params(image_width, image_height, target_aspect_ratio)
 
