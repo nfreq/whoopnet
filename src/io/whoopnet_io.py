@@ -351,6 +351,7 @@ def signal_handler(sig, frame):
     print("\nSIGINT received and exiting")
     runtime_exec = False
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="whoopnet-io fpv i/o interface (control and telemetry)"
@@ -361,43 +362,23 @@ if __name__ == "__main__":
         default="/dev/ttyUSB0",
         help="video capture device (default: /dev/ttyUSB0)"
     )
-    parser.add_argument(
-        "--use_ros",
-        action="store_true",
-        help="Enable ROS integration"
-    )
     args = parser.parse_args()
 
     print("Whoopnet-io started")
     print(f"Device: {args.device}")
-    print(f"Use ROS: {'Enabled' if args.use_ros else 'Not Enabled'}")
 
-    if args.use_ros:
-        from whoopnet_node import WhoopnetNode
-        import rclpy
-        rclpy.init()
-        ros2_node = WhoopnetNode()
 
     def device_info_event_handler(device_infpo):
         print(f"Device Info: {device_infpo}")
 
     def imu_event_handler(imu_data):
-        if args.use_ros:
-            ros2_node.publish_imu(imu_data)
-        else:
-            print(f"IMU Data: {imu_data}")
+        print(f"IMU Data: {imu_data}")
 
     def attitude_event_handler(attitude_data):
-        if args.use_ros:
-            ros2_node.publish_attitude(attitude_data)
-        else:
-            print(f"Attitude Data: {attitude_data}")
+        print(f"Attitude Data: {attitude_data}")
 
     def battery_event_handler(battery_data):
-        if args.use_ros:
-            ros2_node.publish_battery(battery_data)
-        else:
-            print(f"Battery Data: {battery_data}")
+        print(f"Battery Data: {battery_data}")
 
     signal.signal(signal.SIGINT, signal_handler)
 
@@ -419,8 +400,6 @@ if __name__ == "__main__":
     whoopnet_io.set_channel_values(chT=throttle, chR=roll, chE=pitch, chA=yaw, aux1=arm, aux3=mode, aux4=turtle) # throttle, yaw, pitch, roll, arm, mode
 
     while runtime_exec:
-        if args.use_ros:
-            rclpy.spin_once(ros2_node, timeout_sec=0.1)
         time.sleep(0.001)
 
     whoopnet_io.stop()

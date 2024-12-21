@@ -25,7 +25,7 @@ arm = OUTPUT_MIN
 mode = OUTPUT_MIN
 turtle = OUTPUT_MIN
 
-def manual_control_handler(fpv_interface):
+def manual_control_handler(whoopnet_io):
     global throttle, yaw, pitch, roll, arm, mode, turtle
     RAW_MIN = -32062
     RAW_MAX = 32061
@@ -78,7 +78,7 @@ def manual_control_handler(fpv_interface):
                 else:
                     logger.debug(f"Unmapped Event - Code: {event.code} | State: {event.state}")
                 
-            fpv_interface.set_channel_values(chT=throttle, chR=yaw, chE=roll, chA=pitch, aux1=arm, aux2=arm, aux3=mode, aux4=turtle)
+            whoopnet_io.set_channel_values(chT=throttle, chR=yaw, chE=roll, chA=pitch, aux1=arm, aux2=arm, aux3=mode, aux4=turtle)
     except KeyboardInterrupt:
         pass
 
