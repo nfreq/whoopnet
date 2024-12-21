@@ -9,9 +9,11 @@ setup(
      install_requires=[
         'pyserial',
         'numpy',
-        'cv2',
         'opencv-python',
-        'easyocr'
+        'easyocr',
+        'inputs',
+        'transformers',
+        'ultralytics'
     ],
     zip_safe=True,
     maintainer='nfreq',

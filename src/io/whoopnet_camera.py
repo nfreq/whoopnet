@@ -34,7 +34,11 @@ def extract_timestamp(frame):
     results = reader.readtext(resized, detail=0, allowlist='0123456789')
 
     # Extract and return the first detected numeric string
-    timestamp = float(results[0]) if results else 0
+    try:
+        timestamp = float(results[0]) if results else 0
+    except: 
+        timestamp = 0
+        
     #cv2.imwrite('ocr.jpg', frame)
     cv2.imwrite('ocr_cropped.jpg', resized)
     return timestamp
@@ -91,7 +95,7 @@ while runtime_exec:
         ret, frame = cap.read()
 
         timestamp = extract_timestamp(frame)
-
+        cropped_frame = crop(frame, target_width, x_offset)
         if timestamp != 0:
             if pred_timestamp == 0:
                 pred_timestamp = timestamp
@@ -117,7 +121,7 @@ while runtime_exec:
         #undistorted_img = cv2.remap(cropped_frame, map1, map2, interpolation=cv2.INTER_LINEAR)
         #downscaled_frame = cv2.resize(undistorted_img, (256, 256), interpolation=cv2.INTER_AREA)
 
-        ros_node.publish_camera_raw_feed(frame, math.ceil(timestamp))
+        ros_node.publish_camera_raw_feed(cropped_frame, math.ceil(timestamp))
         #ros_node.publish_camera_feed(undistorted_img)
         rclpy.spin_once(ros_node, timeout_sec=0.0)        
 

@@ -1,0 +1,7 @@
+pyserial
+numpy
+opencv-python
+easyocr
+inputs
+transformers
+ultralytics

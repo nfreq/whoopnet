@@ -11,22 +11,28 @@ class DepthEstimationNode(Node):
         super().__init__('depth_estimation_node')
         self.image_subscriber = self.create_subscription(
             Image,
-            '/drone/camera_raw',
+            '/whoopnet/io/camera_raw',
             self.image_callback,
             10
         )
         self.depth_publisher = self.create_publisher(
             Image,
-            '/drone/camera_depth',
+            '/whoopnet/perception/depth_zoedepth',
             10
         )
         self.image_processor = AutoImageProcessor.from_pretrained("Intel/zoedepth-nyu-kitti")
         self.model = ZoeDepthForDepthEstimation.from_pretrained("Intel/zoedepth-nyu-kitti").to("cuda:0")
+        
+        self.frame_skip = 6
+        self.frame_count = 0
 
-        self.get_logger().info("Depth Estimation Node initialized.")
+        self.get_logger().info("zoedepth initialized")
 
     def image_callback(self, msg):
         try:
+            self.frame_count += 1
+            if self.frame_count % self.frame_skip != 0:
+                return
             # Convert ROS Image message to OpenCV (NumPy) array
             frame = np.frombuffer(msg.data, dtype=np.uint8).reshape(msg.height, msg.width, -1)
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
