@@ -13,7 +13,7 @@ This flexibility allows your 20g robot to have a 20kg brain.
 Read the [docs](https://github.com/nfreq/whoopnet/wiki).
 ## Goals
 * Stable State Estimation with VINS (Visual-Inertial Navigation)
-* Reproduce [Deep Drone Acrobatics](https://arxiv.org/pdf/2006.05768) with a **tiny whoop** and off-board compute.
+* Reproduce [Deep Drone Acrobatics](https://arxiv.org/pdf/2006.05768) with a **tiny whoop** and offboard compute.
 
 ## Challenges
 * Un-syncronized Camera and IMU feeds
