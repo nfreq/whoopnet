@@ -16,20 +16,19 @@ ___
 </div>
 
 ___
-## Goals
+### Goals
 * Stable State Estimation with VINS (Visual-Inertial Navigation)
 * Reproduce [Deep Drone Acrobatics](https://arxiv.org/pdf/2006.05768) with a **tiny whoop** and offboard compute.
 
-## Challenges
+### Challenges
 * Un-syncronized Camera and IMU feeds
 * Low Frequency IMU (~100hz)
 * Rolling Shutter Camera
 * ELRS Telemetry Bandwidth
 * Noise
-
 * Murphy
 
-## Strategy
+### Strategy
 * Betaflight FC firmware modifications:
   1. Telemetry: Disable Existing Telemetry. Send raw IMU CRSF telemetry packets @ ~100hz (include FC RTC timestamp)
   2. OSD: Increase OSD Refresh Rate to 30hz and send FC RTC timestamp (data intake will extract via OCR)
