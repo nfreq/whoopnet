@@ -4,8 +4,7 @@
 </div>
 
 ___
-
-Whoopnet transforms standard FPV drones into an autonomous vehicle by harnessing off-board neural networks that process raw visual and inertial data and output RC flight commands.
+Whoopnet enables FPV drones to operate autonomously by leveraging offboard neural networks. It facilitates the processing of raw visual and inertial data while providing the interface to deliver RC flight commands for AI-driven control.
 
 While compatible with any unmodified FPV multirotor that supports ELRS, HDZero and Betaflight, the project focuses on targeting sub-25-gram vehicles and advancing offboard compute capabilities to enable AI-driven autonomous software.
 
