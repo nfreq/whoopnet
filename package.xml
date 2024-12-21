@@ -1,0 +1,13 @@
+<package format="3">
+  <name>whoopnet</name>
+  <version>0.1.0</version>
+  <description>autonomous fpv interface</description>
+
+  <maintainer email="nfreq@whoopnet.ai">Scott</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>python3-serial</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+</package>
