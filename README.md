@@ -12,7 +12,8 @@ While compatible with any unmodified FPV multirotor that supports ELRS, HDZero a
 This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depending on your edge compute requirements, enabling scalable computational power for advanced tasks and experimentation.
 
 Read the [docs](https://github.com/nfreq/whoopnet/wiki).
-## Goal
+## Goals
+* Stable State Estimation with VINS (Visual-Inertial Navigation)
 * Reproduce [Deep Drone Acrobatics](https://arxiv.org/pdf/2006.05768) with a **tiny whoop**.
 
 ## Challenges
