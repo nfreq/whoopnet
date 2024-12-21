@@ -1,7 +1,7 @@
 # Whoopnet
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/7331890b-623d-4bba-9e12-3f2614ad0907" alt="whoopnet_hw" width="600" style="display:inline-block; margin-right: 10px;">
-  <img src="https://github.com/user-attachments/assets/414608c7-fce0-4ee1-b526-d78d7cb91b39" alt="whoopnet_hw" height="430" width="400" style="display:inline-block;">
+  <img src="https://github.com/user-attachments/assets/7331890b-623d-4bba-9e12-3f2614ad0907" alt="whoopnet_hw" width="50%" style="display:inline-block; margin-right: 10px;">
+  <img src="https://github.com/user-attachments/assets/414608c7-fce0-4ee1-b526-d78d7cb91b39" alt="whoopnet_hw" width="40%" style="display:inline-block;">
 </div>
 
 ___
@@ -33,4 +33,3 @@ Read the [docs](https://github.com/nfreq/whoopnet/wiki).
 * ELRS v3 F1000HZ to support the new telemetry bandwidth requirements
   
 * ROS2 timestamps in IMU and Camera topics will use FC RTC timestamp to keep the data as synchronized as possible
-![wireduptoo](https://github.com/user-attachments/assets/7331890b-623d-4bba-9e12-3f2614ad0907)
