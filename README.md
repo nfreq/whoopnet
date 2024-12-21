@@ -1,7 +1,7 @@
 # Whoopnet
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/7331890b-623d-4bba-9e12-3f2614ad0907" alt="whoopnet_hw" width="50%" style="display:inline-block; margin-right: 10px;">
-  <img src="https://github.com/user-attachments/assets/414608c7-fce0-4ee1-b526-d78d7cb91b39" alt="whoopnet_hw" width="40%" style="display:inline-block;">
+  <img src="https://github.com/user-attachments/assets/7331890b-623d-4bba-9e12-3f2614ad0907" alt="whoopnet_hw" width="70%" style="display:inline-block; margin-right: 10px;">
+  <img src="https://github.com/user-attachments/assets/414608c7-fce0-4ee1-b526-d78d7cb91b39" alt="whoopnet_hw" width="30%" style="display:inline-block;">
 </div>
 
 ___
