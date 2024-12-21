@@ -7,6 +7,10 @@ This allows a 20g robot to have a 20kg brain.
 
 Read the [docs](https://github.com/nfreq/whoopnet/wiki).
 ___
+### Goals
+* Stable State Estimation with VINS (Visual-Inertial Navigation)
+* Reproduce [Deep Drone Acrobatics](https://arxiv.org/pdf/2006.05768) with a **tiny whoop** and offboard compute.
+___
 <div align="center">
   <img src="https://github.com/user-attachments/assets/414608c7-fce0-4ee1-b526-d78d7cb91b39" alt="whoopnet_hw" width="30%" style="display:inline-block;">
   <img src="https://github.com/user-attachments/assets/0b8ead3e-dcb9-4141-bffe-6c3b835faf4a" alt="whoopnet_hw" width="45%" style="display:inline-block;">
@@ -16,9 +20,6 @@ ___
 </div>
 
 ___
-### Goals
-* Stable State Estimation with VINS (Visual-Inertial Navigation)
-* Reproduce [Deep Drone Acrobatics](https://arxiv.org/pdf/2006.05768) with a **tiny whoop** and offboard compute.
 
 ### Challenges
 * Un-syncronized Camera and IMU feeds
@@ -32,7 +33,5 @@ ___
 * Betaflight FC firmware modifications:
   1. Telemetry: Disable Existing Telemetry. Send raw IMU CRSF telemetry packets @ ~100hz (include FC RTC timestamp)
   2. OSD: Increase OSD Refresh Rate to 30hz and send FC RTC timestamp (data intake will extract via OCR)
-     
 * ELRS v3 F1000HZ to support the new telemetry bandwidth requirements
-  
 * ROS2 timestamps in IMU and Camera topics will use FC RTC timestamp to keep the data as synchronized as possible
