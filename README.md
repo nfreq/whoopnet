@@ -1,6 +1,7 @@
 # Whoopnet
 <div align="center">
-<img src="https://github.com/user-attachments/assets/414608c7-fce0-4ee1-b526-d78d7cb91b39" alt="whoopnet_hw" width="400">
+<img src="https://github.com/user-attachments/assets/7331890b-623d-4bba-9e12-3f2614ad0907" alt="whoopnet_hw" width="600">
+<img src="https://github.com/user-attachments/assets/414608c7-fce0-4ee1-b526-d78d7cb91b39" alt="whoopnet_hw" height="430" width="400">
 </div>
 
 ___
@@ -28,5 +29,8 @@ Read the [docs](https://github.com/nfreq/whoopnet/wiki).
 * Betaflight FC firmware modifications:
   1. Telemetry: Disable Existing Telemetry. Send raw IMU CRSF telemetry packets @ ~100hz (include FC RTC timestamp)
   2. OSD: Increase OSD Refresh Rate to 30hz and send FC RTC timestamp (data intake will extract via OCR)
+     
 * ELRS v3 F1000HZ to support the new telemetry bandwidth requirements
+  
 * ROS2 timestamps in IMU and Camera topics will use FC RTC timestamp to keep the data as synchronized as possible
+![wireduptoo](https://github.com/user-attachments/assets/7331890b-623d-4bba-9e12-3f2614ad0907)
