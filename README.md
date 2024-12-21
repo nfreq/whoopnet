@@ -3,7 +3,7 @@ Whoopnet enables tiny FPV drones to operate autonomously by leveraging offboard 
 
 While compatible with any unmodified FPV multirotor that supports ELRS, HDZero and Betaflight, the project focuses on targeting sub-25-gram vehicles and advancing capabilities via offboard compute.
 
-This flexibility allows a 20g robot to have a 20kg brain.
+This allows a 20g robot to have a 20kg brain.
 
 Read the [docs](https://github.com/nfreq/whoopnet/wiki).
 ___
