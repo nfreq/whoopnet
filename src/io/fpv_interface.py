@@ -1,47 +1,47 @@
-import logging
 import serial
+from serial.serialutil import SerialException
 import struct
 import threading
+import logging
 import time
 from typing import List, Callable, Optional
-from serial.serialutil import SerialException
 import signal
-import rclpy
-from fpv_node import FpvNode
-
-runtime_exec = True
+import argparse
 
 class FpvInterface(threading.Thread):
-    SERIAL_PORT = '/dev/ttyUSB0'
-    BAUD_RATE = 921000
-    PACKET_RATE_SEC = 1/1000.0
-    
-    SYNC_BYTE = 0xC8
-    BROADCAST_ADDR = 0x00
-    HANDSET_ADDR = 0xEA
-    TXMODULE_ADDR = 0xEE
-   
-    CHANNELS_FRAME = 0x16
-    PING_DEVICES_FRAME = 0x28
-    DEVICE_INFO_FRAME = 0x29
-    RADIO_FRAME = 0x3A
-    LINK_STATS_FRAME = 0x14
-    BATTERY_SENSOR_FRAME = 0x08
-    CRSF_FRAMETYPE_IMU = 0x2E
-    CRSF_FRAMETYPE_GPS = 0x02
-    CRSF_FRAMETYPE_ATTITUDE = 0x1E
-    CRSF_FRAMETYPE_FLIGHTMODE = 0x21
-
-    CHANNEL_MIN_1000 = 191
-    CHANNEL_MID_1500 = 992
-    CHANNEL_MAX_2000 = 1792
-    
-    def __init__(self):
+    def __init__(self, device):
         super().__init__()
         self.daemon = True
+
+        self.SERIAL_PORT = device
+        self.BAUD_RATE = 921000
+        self.PACKET_RATE_SEC = 1/1000.0
+        
+        self.SYNC_BYTE = 0xC8
+        self.BROADCAST_ADDR = 0x00
+        self.HANDSET_ADDR = 0xEA
+        self.TXMODULE_ADDR = 0xEE
+    
+        self.CHANNELS_FRAME = 0x16
+        self.PING_DEVICES_FRAME = 0x28
+        self.DEVICE_INFO_FRAME = 0x29
+        self.RADIO_FRAME = 0x3A
+        self.LINK_STATS_FRAME = 0x14
+        self.BATTERY_SENSOR_FRAME = 0x08
+        self.CRSF_FRAMETYPE_IMU = 0x2E
+        self.CRSF_FRAMETYPE_GPS = 0x02
+        self.CRSF_FRAMETYPE_ATTITUDE = 0x1E
+        self.CRSF_FRAMETYPE_FLIGHTMODE = 0x21
+
+        self.CHANNEL_MIN_1000 = 191
+        self.CHANNEL_MID_1500 = 992
+        self.CHANNEL_MAX_2000 = 1792
+
         self.buffer = bytearray()
         self.running = False
         self.channels = [500] * 16
+
+        self.device = device
         
         self.device_info = []
         self.radio_id_data = []
@@ -58,10 +58,6 @@ class FpvInterface(threading.Thread):
         self.attitude_callback: Optional[Callable[[tuple], None]] = None
         self.imu_callback: Optional[Callable[[tuple], None]] = None
        
-
-        rclpy.init()
-        self.ros2_node = FpvNode()
-
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
@@ -125,7 +121,7 @@ class FpvInterface(threading.Thread):
             self.buffer.extend(incoming_data)
             self.buffer = self.process_packet(self.buffer)
         except SerialException:
-            self.logger.error("error reading data from serial")
+            self.logger.error("error reading data from serial port")
 
     def scale_channel_value(self, input_value):
         """Scale the input value from the range 1000-2000 to CRSF 191-1792."""
@@ -162,8 +158,6 @@ class FpvInterface(threading.Thread):
             buf[3 + bit_offset] = read_value & 0xFF
 
         buf[25] = self.crsf_crc8(buf[2:25])
-        #self.logger.info(f"Raw Packet (Hex): {' '.join(f'{b:02X}' for b in buf)}")
-
         return bytes(buf)
 
     def create_packet_ping_device(self) -> bytes:
@@ -233,19 +227,16 @@ class FpvInterface(threading.Thread):
                 self.logger.debug(f"link status packet: {self.link_status_data}")
             elif type_byte == self.BATTERY_SENSOR_FRAME:
                 self.parse_battery_frame(payload)
-                self.ros2_node.publish_battery(self.battery_data)
                 self.logger.debug(f"battery packet: {self.battery_data}")
             elif type_byte == self.CRSF_FRAMETYPE_GPS:
                 self.logger.debug(f"gps packet: {payload.hex()}")
             elif type_byte == self.CRSF_FRAMETYPE_ATTITUDE:
                 self.parse_attitude_frame(payload)
-                self.ros2_node.publish_attitude(self.attitude_data)
                 self.logger.debug(f"attitude packet: {self.attitude_data}")
             elif type_byte == self.CRSF_FRAMETYPE_FLIGHTMODE:
                 self.logger.debug(f"flight mode: {payload.hex()}")
             elif type_byte == self.CRSF_FRAMETYPE_IMU:
                 self.parse_imu_frame(payload)
-                self.ros2_node.publish_imu(self.imu_data)
                 self.logger.debug(f"imu packet: {self.imu_data}")
             else:
                 self.logger.error(f"Unknown Type: {type_byte:#02x}")
@@ -310,23 +301,18 @@ class FpvInterface(threading.Thread):
     def parse_attitude_frame(self, payload):
         try:
             pitch_raw, roll_raw, yaw_raw = struct.unpack('>HHH', payload[:6])
-
             # unsigned -> signed
             pitch_signed = pitch_raw - 32768
             roll_signed = roll_raw - 32768
             yaw_signed = yaw_raw - 32768
-
             # milli-radians to radians
             pitch_radians = pitch_signed / 1000.0
             roll_radians = roll_signed / 1000.0
             yaw_radians = yaw_signed / 1000.0
-
             # Store parsed data
             self.attitude_data = pitch_radians, roll_radians, yaw_radians
-
             if self.attitude_callback:
                 self.attitude_callback(self.attitude_data)
-
         except Exception as e:
             self.logger.error(f"Failed to parse attitude: {e}")
 
@@ -334,25 +320,20 @@ class FpvInterface(threading.Thread):
     def parse_imu_frame(self, payload):
         try:
             acc_x_int, acc_y_int, acc_z_int, vel_x_int, vel_y_int, vel_z_int, time_stamp_ms = struct.unpack('>HHHHHHI', payload[:16])
-
             # milli-g -> g
             acc_x = (acc_x_int - 32768) / 1000.0
             acc_y = (acc_y_int - 32768) / 1000.0
             acc_z = (acc_z_int - 32768) / 1000.0
-
             # milli-radians to radians
             vel_x = (vel_x_int - 32768) / 1000.0
             vel_y = (vel_y_int - 32768) / 1000.0
             vel_z = (vel_z_int - 32768) / 1000.0
-
             self.imu_data = acc_x,acc_y,acc_z,vel_x,vel_y,vel_z,time_stamp_ms
-
             if self.imu_callback:
                 self.imu_callback(self.imu_data)
 
         except Exception as e:
             self.logger.error(f"Failed to parse imu packet: {e}")
-
 
     def get_device_info(self):
         return self.device_info
@@ -363,36 +344,71 @@ class FpvInterface(threading.Thread):
     def get_link_status(self):
         return self.link_status_data
 
+
+runtime_exec = True
 def signal_handler(sig, frame):
     global runtime_exec
-    print("\nSIGINT received. Exiting gracefully...")
+    print("\nSIGINT received and exiting")
     runtime_exec = False
 
 if __name__ == "__main__":
-    def device_info_event_handler(imu_data):
-        print(f"Device Info: {imu_data}")
+    parser = argparse.ArgumentParser(
+        description="whoopnet-io fpv i/o interface (control and telemetry)"
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="/dev/ttyUSB0",
+        help="video capture device (default: /dev/ttyUSB0)"
+    )
+    parser.add_argument(
+        "--use_ros",
+        action="store_true",
+        help="Enable ROS integration"
+    )
+    args = parser.parse_args()
+
+    print("Whoopnet-io started")
+    print(f"Device: {args.device}")
+    print(f"Use ROS: {'Enabled' if args.use_ros else 'Not Enabled'}")
+
+    if args.use_ros:
+        from fpv_node import FpvNode
+        import rclpy
+        rclpy.init()
+        ros2_node = FpvNode()
+
+    def device_info_event_handler(device_infpo):
+        print(f"Device Info: {device_infpo}")
 
     def imu_event_handler(imu_data):
-        print(f"IMU Data: {imu_data}")
+        if args.use_ros:
+            ros2_node.publish_imu(imu_data)
+        else:
+            print(f"IMU Data: {imu_data}")
 
     def attitude_event_handler(attitude_data):
-        print(f"Attitude Data: {attitude_data}")
+        if args.use_ros:
+            ros2_node.publish_attitude(attitude_data)
+        else:
+            print(f"Attitude Data: {attitude_data}")
 
     def battery_event_handler(battery_data):
-        print(f"Battery Data: {battery_data}")
+        if args.use_ros:
+            ros2_node.publish_battery(battery_data)
+        else:
+            print(f"Battery Data: {battery_data}")
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    fpv_interface = FpvInterface()
-    # These callbacks are for use outside ROS2 land
+    fpv_interface = FpvInterface(args.device)
+    fpv_interface.set_imu_callback(imu_event_handler)
     #fpv_interface.set_device_info_callback(device_info_event_handler)
-    #fpv_interface.set_imu_callback(imu_event_handler)
     #fpv_interface.set_attitude_callback(attitude_event_handler)
     #fpv_interface.set_battery_callback(battery_event_handler)
     fpv_interface.start()
 
-
-    #---- Send some channel data
+    #---- Initialize Control Channel Values
     roll = 1500
     pitch = 1800
     yaw = 1500
@@ -403,7 +419,8 @@ if __name__ == "__main__":
     fpv_interface.set_channel_values(chT=throttle, chR=roll, chE=pitch, chA=yaw, aux1=arm, aux3=mode, aux4=turtle) # throttle, yaw, pitch, roll, arm, mode
 
     while runtime_exec:
-        rclpy.spin_once(fpv_interface.ros2_node, timeout_sec=0.1)
+        if args.use_ros:
+            rclpy.spin_once(ros2_node, timeout_sec=0.1)
         time.sleep(0.001)
 
     fpv_interface.stop()
