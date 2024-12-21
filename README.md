@@ -4,11 +4,11 @@
 </div>
 
 ___
-Whoopnet enables FPV drones to operate autonomously by leveraging offboard neural networks. It facilitates the processing of raw visual and inertial data while providing the interface to deliver RC flight commands for AI-driven control.
+Whoopnet enables FPV drones to operate autonomously by leveraging offboard neural networks. It facilitates the processing of raw visual and inertial data while providing the interface to deliver RC flight commands for classical or ai driven control.
 
-While compatible with any unmodified FPV multirotor that supports ELRS, HDZero and Betaflight, the project focuses on targeting sub-25-gram vehicles and advancing offboard compute capabilities to enable AI-driven autonomous software.
+While compatible with any unmodified FPV multirotor that supports ELRS, HDZero and Betaflight, the project focuses on targeting sub-25-gram vehicles and advancing capabilities via offboard compute.
 
-This flexibility allows your 20-gram robot to leverage a 20-kilogram brain, depending on your edge compute requirements, enabling scalable computational power for advanced tasks and experimentation.
+This flexibility allows your 20g robot to have a 20kg brain.
 
 Read the [docs](https://github.com/nfreq/whoopnet/wiki).
 ## Goals
