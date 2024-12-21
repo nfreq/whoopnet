@@ -1,9 +1,7 @@
+#Whoopnet
 <div align="center">
 <img src="https://github.com/user-attachments/assets/414608c7-fce0-4ee1-b526-d78d7cb91b39" alt="whoopnet_hw" width="400">
 </div>
-
-# Whoopnet
-
 
 Whoopnet transforms standard FPV drones into an autonomous vehicle by harnessing off-board neural networks that process raw visual and inertial data and output RC flight commands.
 
