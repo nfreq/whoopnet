@@ -11,8 +11,6 @@ from fpv_node import FpvNode
 
 runtime_exec = True
 
-unique_types = {}
-
 class FpvInterface(threading.Thread):
     SERIAL_PORT = '/dev/ttyUSB0'
     BAUD_RATE = 921000
@@ -386,28 +384,26 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
 
     fpv_interface = FpvInterface()
-    fpv_interface.set_device_info_callback(device_info_event_handler)
-    fpv_interface.set_imu_callback(imu_event_handler)
-    fpv_interface.set_attitude_callback(attitude_event_handler)
-    fpv_interface.set_battery_callback(battery_event_handler)
+    # These callbacks are for use outside ROS2 land
+    #fpv_interface.set_device_info_callback(device_info_event_handler)
+    #fpv_interface.set_imu_callback(imu_event_handler)
+    #fpv_interface.set_attitude_callback(attitude_event_handler)
+    #fpv_interface.set_battery_callback(battery_event_handler)
     fpv_interface.start()
 
+
+    #---- Send some channel data
     roll = 1500
     pitch = 1800
     yaw = 1500
     throttle = 1500
-
     arm = 1000
     mode = 1500
     turtle = 2000
-    
     fpv_interface.set_channel_values(chT=throttle, chR=roll, chE=pitch, chA=yaw, aux1=arm, aux3=mode, aux4=turtle) # throttle, yaw, pitch, roll, arm, mode
 
     while runtime_exec:
         rclpy.spin_once(fpv_interface.ros2_node, timeout_sec=0.1)
-        #print(fpv_interface.get_device_info())
-        #print(fpv_interface.get_link_status())
-        #print(fpv_interface.get_radio_id_data())
         time.sleep(0.001)
 
     fpv_interface.stop()

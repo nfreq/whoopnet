@@ -39,19 +39,31 @@ class FpvNode(Node):
         msg.angular_velocity.z = imu_data[5]
         self.imu_publisher.publish(msg)
 
-    def publish_camera_feed(self, undistorted_img):
+    def publish_camera_feed(self, undistorted_img, timestamp_ms):
         try:
+            secs = int(timestamp_ms / 1000)
+            nsecs = int((timestamp_ms % 1000) * 1_000_000)
+            stamp_msg = builtin_interfaces.msg.Time()
+            stamp_msg.sec = secs
+            stamp_msg.nanosec = nsecs
+            
             ros_image = self.bridge.cv2_to_imgmsg(undistorted_img, encoding="bgr8")
-            ros_image.header.stamp = self.get_clock().now().to_msg() 
+            ros_image.header.stamp = stamp_msg
             ros_image.header.frame_id = "camera"
             self.camera_publisher.publish(ros_image)
         except Exception as e:
             self.get_logger().error(f"Failed to publish camera feed: {e}")
 
-    def publish_camera_raw_feed(self, raw_img):
+    def publish_camera_raw_feed(self, raw_img, timestamp_ms):
         try:
+            secs = int(timestamp_ms / 1000)
+            nsecs = int((timestamp_ms % 1000) * 1_000_000)
+            stamp_msg = builtin_interfaces.msg.Time()
+            stamp_msg.sec = secs
+            stamp_msg.nanosec = nsecs
+
             ros_image = self.bridge.cv2_to_imgmsg(raw_img, encoding="bgr8")
-            ros_image.header.stamp = self.get_clock().now().to_msg() 
+            ros_image.header.stamp = stamp_msg
             ros_image.header.frame_id = "camera_raw"
             self.camera_raw_publisher.publish(ros_image)
         except Exception as e:
