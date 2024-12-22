@@ -12,7 +12,7 @@ class YoloV11(Node):
         super().__init__('yolo_node')
         self.image_subscriber = self.create_subscription(
             Image,
-            '/whoopnet/io/camera_raw',
+            '/whoopnet/io/camera',
             self.image_callback,
             10
         )

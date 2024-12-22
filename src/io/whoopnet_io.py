@@ -388,7 +388,6 @@ if __name__ == "__main__":
     print("Whoopnet-io started")
     print(f"Device: {args.device}")
 
-
     def device_info_event_handler(device_infpo):
         print(f"Device Info: {device_infpo}")
 

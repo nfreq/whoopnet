@@ -14,8 +14,8 @@ class WhoopnetNode(Node):
             depth=10 
         )
         self.imu_publisher = self.create_publisher(Imu, 'whoopnet/io/imu', qos_profile=qos_profile)
-        self.camera_raw_publisher = self.create_publisher(Image, 'whoopnet/io/camera_raw', qos_profile=qos_profile)
-        self.camera_publisher = self.create_publisher(Image, 'whoopnet/io/camera_corrected', qos_profile=qos_profile)
+        self.camera_publisher = self.create_publisher(Image, 'whoopnet/io/camera', qos_profile=qos_profile)
+        self.camera_corrected_publisher = self.create_publisher(Image, 'whoopnet/io/camera_corrected', qos_profile=qos_profile)
         self.attitude_publisher = self.create_publisher(Vector3Stamped, 'whoopnet/io/attitude', qos_profile=qos_profile)
         self.battery_publisher = self.create_publisher(BatteryState, 'whoopnet/io/battery', qos_profile=qos_profile)
         self.bridge = CvBridge()
@@ -39,7 +39,7 @@ class WhoopnetNode(Node):
         msg.angular_velocity.z = imu_data[5]
         self.imu_publisher.publish(msg)
 
-    def publish_camera_feed(self, undistorted_img, timestamp_ms):
+    def publish_camera_corrected_feed(self, img, timestamp_ms):
         try:
             secs = int(timestamp_ms / 1000)
             nsecs = int((timestamp_ms % 1000) * 1_000_000)
@@ -47,14 +47,14 @@ class WhoopnetNode(Node):
             stamp_msg.sec = secs
             stamp_msg.nanosec = nsecs
             
-            ros_image = self.bridge.cv2_to_imgmsg(undistorted_img, encoding="bgr8")
+            ros_image = self.bridge.cv2_to_imgmsg(img, encoding="bgr8")
             ros_image.header.stamp = stamp_msg
-            ros_image.header.frame_id = "camera"
-            self.camera_publisher.publish(ros_image)
+            ros_image.header.frame_id = "camera_corrected"
+            self.camera_corrected_publisher.publish(ros_image)
         except Exception as e:
-            self.get_logger().error(f"Failed to publish camera feed: {e}")
+            self.get_logger().error(f"Failed to publish camera_corrected feed: {e}")
 
-    def publish_camera_raw_feed(self, raw_img, timestamp_ms):
+    def publish_camera_feed(self, img, timestamp_ms):
         try:
             secs = int(timestamp_ms / 1000)
             nsecs = int((timestamp_ms % 1000) * 1_000_000)
@@ -62,12 +62,12 @@ class WhoopnetNode(Node):
             stamp_msg.sec = secs
             stamp_msg.nanosec = nsecs
 
-            ros_image = self.bridge.cv2_to_imgmsg(raw_img, encoding="bgr8")
+            ros_image = self.bridge.cv2_to_imgmsg(img, encoding="bgr8")
             ros_image.header.stamp = stamp_msg
-            ros_image.header.frame_id = "camera_raw"
-            self.camera_raw_publisher.publish(ros_image)
+            ros_image.header.frame_id = "camera"
+            self.camera_publisher.publish(ros_image)
         except Exception as e:
-            self.get_logger().error(f"Failed to publish camera raw feed: {e}")
+            self.get_logger().error(f"Failed to publish camera feed: {e}")
 
     def publish_attitude(self, attitude_data):
         msg = Vector3Stamped()

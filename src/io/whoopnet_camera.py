@@ -121,7 +121,7 @@ while runtime_exec:
         #undistorted_img = cv2.remap(cropped_frame, map1, map2, interpolation=cv2.INTER_LINEAR)
         #downscaled_frame = cv2.resize(undistorted_img, (256, 256), interpolation=cv2.INTER_AREA)
 
-        ros_node.publish_camera_raw_feed(cropped_frame, math.ceil(timestamp))
+        ros_node.publish_camera_feed(cropped_frame, math.ceil(timestamp))
         #ros_node.publish_camera_feed(undistorted_img)
         rclpy.spin_once(ros_node, timeout_sec=0.0)        
 

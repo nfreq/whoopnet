@@ -53,8 +53,7 @@ if __name__ == "__main__":
     whoopnet_io.set_channel_init()
 
     while runtime_exec:
-        if args.use_ros:
-            rclpy.spin_once(ros2_node, timeout_sec=0.1)
+        rclpy.spin_once(ros2_node, timeout_sec=0.1)
         time.sleep(0.001)
 
     whoopnet_io.stop()

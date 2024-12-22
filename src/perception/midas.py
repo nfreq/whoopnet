@@ -11,7 +11,7 @@ class DepthEstimationNode(Node):
         super().__init__('depth_estimation_node')
         self.image_subscriber = self.create_subscription(
             Image,
-            '/whoopnet/io/camera_raw',
+            '/whoopnet/io/camera',
             self.image_callback,
             10
         )
