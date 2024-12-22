@@ -252,6 +252,27 @@ class WhoopnetIO(threading.Thread):
 
     def set_channel_values(self, chT, chR, chE, chA, aux1=2000, aux2=2000, aux3=2000, aux4=2000, aux5=2000, aux6=2000, aux7=2000, aux8=2000, aux9=2000, aux10=2000, aux11=2000, aux12=2000):
         self.channels[:16] = [chT, chR, chE, chA, aux1, aux2, aux3, aux4, aux5, aux6, aux7, aux8, aux9, aux10, aux11, aux12]
+
+    def set_channel_init(self): # Center Sticks, Zero Throttle, Disarm
+        OUTPUT_MIN = 1000  # Output for Position 1
+        OUTPUT_MID = 1500  # Output for Position 2
+        OUTPUT_MAX = 2000  # Output for Position 3
+        self.channels[:16] = [OUTPUT_MIN, 
+                              OUTPUT_MID, 
+                              OUTPUT_MID, 
+                              OUTPUT_MID, 
+                              OUTPUT_MIN, 
+                              OUTPUT_MIN, 
+                              OUTPUT_MIN, 
+                              OUTPUT_MIN, 
+                              OUTPUT_MIN, 
+                              OUTPUT_MIN, 
+                              OUTPUT_MIN, 
+                              OUTPUT_MIN, 
+                              OUTPUT_MIN, 
+                              OUTPUT_MIN, 
+                              OUTPUT_MIN, 
+                              OUTPUT_MIN]
         
     def set_specific_channel(self, index, value):
         if 0 <= index < 16:
@@ -388,16 +409,7 @@ if __name__ == "__main__":
     #whoopnet_io.set_attitude_callback(attitude_event_handler)
     #whoopnet_io.set_battery_callback(battery_event_handler)
     whoopnet_io.start()
-
-    #---- Initialize Control Channel Values
-    roll = 1500
-    pitch = 1800
-    yaw = 1500
-    throttle = 1500
-    arm = 1000
-    mode = 1500
-    turtle = 2000
-    whoopnet_io.set_channel_values(chT=throttle, chR=roll, chE=pitch, chA=yaw, aux1=arm, aux3=mode, aux4=turtle) # throttle, yaw, pitch, roll, arm, mode
+    whoopnet_io.set_channel_init()
 
     while runtime_exec:
         time.sleep(0.001)

@@ -1,34 +1,30 @@
 from whoopnet_io import WhoopnetIO
-import time
 import logging
 from inputs import devices, get_gamepad
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
-file_handler = logging.FileHandler("fpv_passthrough.log")
+file_handler = logging.FileHandler("whoopnet_manual_control.log")
 console_handler = logging.StreamHandler()
 file_handler.setFormatter(formatter)
 console_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
-OUTPUT_MIN = 1000  # Output for Position 1
-OUTPUT_MID = 1500  # Output for Position 2
-OUTPUT_MAX = 2000  # Output for Position 3
-
-throttle = OUTPUT_MIN
-yaw = OUTPUT_MID
-pitch = OUTPUT_MID
-roll = OUTPUT_MID
-arm = OUTPUT_MIN
-mode = OUTPUT_MIN
-turtle = OUTPUT_MIN
-
 def manual_control_handler(whoopnet_io):
-    global throttle, yaw, pitch, roll, arm, mode, turtle
     RAW_MIN = -32062
     RAW_MAX = 32061
+    OUTPUT_MIN = 1000  # Output for Position 1
+    OUTPUT_MID = 1500  # Output for Position 2
+    OUTPUT_MAX = 2000  # Output for Position 3
+    throttle = OUTPUT_MIN
+    yaw = OUTPUT_MID
+    pitch = OUTPUT_MID
+    roll = OUTPUT_MID
+    arm = OUTPUT_MIN
+    mode = OUTPUT_MIN
+    turtle = OUTPUT_MIN
 
     CONTROL_MAPPING = {
         'ABS_RX': 'pitch',
@@ -83,18 +79,9 @@ def manual_control_handler(whoopnet_io):
         pass
 
 
-def main():
-    logger.info("FPV Manual Control")
-
+if __name__ == "__main__":
     whoopnet_io = WhoopnetIO()
     whoopnet_io.start()
-    time.sleep(1)
-    
-    whoopnet_io.set_channel_values(chT=throttle, chR=yaw, chE=roll, chA=pitch, aux1=arm, aux2=arm, aux3=mode, aux4=turtle)        #initialize values
-
+    whoopnet_io.set_channel_init()
     manual_control_handler(whoopnet_io)
-
     whoopnet_io.stop()
-
-if __name__ == "__main__":
-    main()

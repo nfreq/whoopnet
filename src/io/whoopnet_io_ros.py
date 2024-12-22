@@ -50,16 +50,7 @@ if __name__ == "__main__":
     #whoopnet_io.set_attitude_callback(attitude_event_handler)
     #whoopnet_io.set_battery_callback(battery_event_handler)
     whoopnet_io.start()
-
-    #---- Initialize Control Channel Values
-    roll = 1500
-    pitch = 1800
-    yaw = 1500
-    throttle = 1500
-    arm = 1000
-    mode = 1500
-    turtle = 2000
-    whoopnet_io.set_channel_values(chT=throttle, chR=roll, chE=pitch, chA=yaw, aux1=arm, aux3=mode, aux4=turtle) # throttle, yaw, pitch, roll, arm, mode
+    whoopnet_io.set_channel_init()
 
     while runtime_exec:
         if args.use_ros:
