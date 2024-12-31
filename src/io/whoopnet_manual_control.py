@@ -35,6 +35,7 @@ def manual_control_handler(whoopnet_io):
     pitch = OUTPUT_MID
     roll = OUTPUT_MID
     arm = OUTPUT_MIN
+    auto = OUTPUT_MIN
     mode = OUTPUT_MIN
     turtle = OUTPUT_MIN
 

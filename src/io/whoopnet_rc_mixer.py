@@ -155,7 +155,6 @@ if __name__ == "__main__":
             else:
                 whoopnet_io.set_rc_channels(chT=throttle, chR=yaw, chA=roll, chE=pitch, aux1=arm, aux3=mode, aux4=turtle, aux8=auto)
             
-
             if prev_arm != arm: # this needs to come from vehicle
                 prev_arm = arm
                 if arm == 2000:
@@ -172,8 +171,7 @@ if __name__ == "__main__":
                 elapsed_time = time.time() - sine_start
                 wave = math.sin(2 * math.pi * elapsed_time / 2)
                 ai_action = int(1500 + wave * 400)
-                whoopnet_io.set_rc_channels(ch=ai_action)
+                whoopnet_io.set_rc_channels(chR=ai_action)
                 
-
     handset_input_thread.stop()
     whoopnet_io.stop()
