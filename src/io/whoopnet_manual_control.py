@@ -1,6 +1,7 @@
 from whoopnet_io import WhoopnetIO
 import logging
 from inputs import devices, get_gamepad
+from enum import Enum
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -11,6 +12,17 @@ file_handler.setFormatter(formatter)
 console_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
+
+class ControlAction(Enum):
+    PITCH = 'pitch'
+    YAW = 'yaw'
+    THROTTLE = 'throttle'
+    ROLL = 'roll'
+    ARM = 'arm'
+    AUTO = 'auto'
+    MODE = 'mode'
+    TURTLE = 'turtle'
+    HEARTBEAT = 'heartbeat'
 
 def manual_control_handler(whoopnet_io):
     RAW_MIN = -32062
@@ -27,13 +39,14 @@ def manual_control_handler(whoopnet_io):
     turtle = OUTPUT_MIN
 
     CONTROL_MAPPING = {
-        'ABS_RX': 'pitch',
-        'ABS_Y': 'yaw',
-        'ABS_X': 'throttle',
-        'ABS_Z': 'roll',
-        'BTN_C': 'arm',
-        'ABS_RZ': 'mode',
-        'BTN_SOUTH': 'turtle'
+        'ABS_RX': ControlAction.YAW,
+        'ABS_Y': ControlAction.ROLL,
+        'ABS_X': ControlAction.THROTTLE,
+        'ABS_Z': ControlAction.PITCH,
+        'BTN_C': ControlAction.ARM,
+        'ABS_RZ': ControlAction.MODE,
+        'BTN_SOUTH': ControlAction.AUTO,
+        'SYN_REPORT': ControlAction.HEARTBEAT
     }
 
     def scale_raw_to_position(value):
@@ -57,24 +70,29 @@ def manual_control_handler(whoopnet_io):
             events = get_gamepad()
             for event in events:
                 control_action = CONTROL_MAPPING.get(event.code, None)
-                if control_action == 'arm':
+                if control_action == ControlAction.HEARTBEAT:
+                    pass
+                    #logger.info("heartbeat")
+                elif control_action == ControlAction.ARM:
                     arm = 1000 if event.state == 0 else 2000
-                elif control_action == 'mode':
+                elif control_action == ControlAction.AUTO:
+                    auto = 1000 if event.state == 0 else 2000
+                elif control_action == ControlAction.MODE:
                     mode = scale_raw_to_position(event.state)
-                elif control_action == 'turtle':
+                elif control_action == ControlAction.TURTLE:
                     turtle = scale_raw_to_position(event.state)
-                elif control_action == 'throttle':
+                elif control_action == ControlAction.THROTTLE:
                     throttle = scale_raw_to_position(event.state)
-                elif control_action == 'yaw':
+                elif control_action == ControlAction.YAW:
                     yaw = scale_raw_to_position(event.state)
-                elif control_action == 'pitch':
+                elif control_action == ControlAction.PITCH:
                     pitch = scale_raw_to_position(event.state)
-                elif control_action == 'roll':
+                elif control_action == ControlAction.ROLL:
                     roll = scale_raw_to_position(event.state)
                 else:
                     logger.debug(f"Unmapped Event - Code: {event.code} | State: {event.state}")
                 
-            whoopnet_io.set_channel_values(chT=throttle, chR=yaw, chE=roll, chA=pitch, aux1=arm, aux2=arm, aux3=mode, aux4=turtle)
+            whoopnet_io.set_rc_channels(chT=throttle, chR=yaw, chA=roll, chE=pitch, aux1=arm, aux3=mode, aux4=turtle, aux8=auto)
     except KeyboardInterrupt:
         pass
 
@@ -82,6 +100,6 @@ def manual_control_handler(whoopnet_io):
 if __name__ == "__main__":
     whoopnet_io = WhoopnetIO()
     whoopnet_io.start()
-    whoopnet_io.set_channel_init()
+    whoopnet_io.init_rc_channels()
     manual_control_handler(whoopnet_io)
     whoopnet_io.stop()
