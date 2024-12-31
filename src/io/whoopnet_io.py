@@ -45,6 +45,7 @@ class WhoopnetIO(threading.Thread):
         self.buffer = bytearray()
         self.running = False
         self.channels = [500] * 16
+        self.previous_channels = None
 
         self.device = device
         
@@ -270,6 +271,15 @@ class WhoopnetIO(threading.Thread):
             if channel in channel_map:
                 self.channels[channel_map[channel]] = value
 
+    def get_rc_channels(self):
+        return self.channels
+    
+    def get_new_rc_channels(self):
+        if self.channels == self.previous_channels:
+            return None
+        else:
+            self.previous_channels = self.channels.copy()
+            return self.previous_channels
 
     def init_rc_channels(self): # Center Sticks, Zero Throttle, Disarm
         OUTPUT_MIN = 1000  # Output for Position 1

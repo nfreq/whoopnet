@@ -2,6 +2,7 @@ from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 from rclpy.node import Node
 from sensor_msgs.msg import Imu, BatteryState, Image
 from geometry_msgs.msg import Vector3Stamped
+from sensor_msgs.msg import Joy
 from cv_bridge import CvBridge
 import builtin_interfaces.msg
 
@@ -18,6 +19,7 @@ class WhoopnetNode(Node):
         self.camera_corrected_publisher = self.create_publisher(Image, 'whoopnet/io/camera_corrected', qos_profile=qos_profile)
         self.attitude_publisher = self.create_publisher(Vector3Stamped, 'whoopnet/io/attitude', qos_profile=qos_profile)
         self.battery_publisher = self.create_publisher(BatteryState, 'whoopnet/io/battery', qos_profile=qos_profile)
+        self.rc_publisher = self.create_publisher(Joy, 'whoopnet/rc', qos_profile=qos_profile)
         self.bridge = CvBridge()
 
     def publish_imu(self, imu_data):
@@ -83,3 +85,22 @@ class WhoopnetNode(Node):
         msg.charge = battery_data[2] / 1000.0  # Convert mAh to Ah
         msg.percentage = battery_data[3] / 100.0
         self.battery_publisher.publish(msg)
+
+    def publish_rc_values(self, channel_data):
+        msg = Joy()
+        msg.header.stamp = self.get_clock().now().to_msg()  # Add timestamp
+
+        # Normalize 16-bit integer values to the range [-1.0, 1.0]
+        msg.axes = [
+            2 * (channel - 1000) / 1000.0 - 1 if 1000 <= channel <= 2000 else 0.0
+            for channel in [
+                channel_data[0],  # chT
+                channel_data[1],  # chA
+                channel_data[2],  # chE
+                channel_data[3],  # chR
+                channel_data[4],  # aux1
+                channel_data[6],  # aux3
+                channel_data[11], # aux8
+            ]
+        ]
+        self.rc_publisher.publish(msg)

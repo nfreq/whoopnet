@@ -58,6 +58,10 @@ if __name__ == "__main__":
     mixer.start_mixer()
 
     while runtime_exec:
+        rc_channels = whoopnet_io.get_new_rc_channels()
+        if rc_channels is not None:
+            ros2_node.publish_rc_values(rc_channels)
+
         rclpy.spin_once(ros2_node, timeout_sec=0.1)
         time.sleep(0.001)
 
