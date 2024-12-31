@@ -1,3 +1,8 @@
+# whoopnet-io is a module that communicates to an elrs transmitter via crsf
+# transmits rc commands
+# receives telemetry and provides callbacks
+# CRSF Reference: https://github.com/crsf-wg/crsf/wiki
+
 import serial
 from serial.serialutil import SerialException
 import struct
@@ -250,10 +255,23 @@ class WhoopnetIO(threading.Thread):
         expected_crc = self.crsf_crc8(packet[crc_start:crc_end])
         return packet[-1] == expected_crc
 
-    def set_channel_values(self, chT, chR, chE, chA, aux1=2000, aux2=2000, aux3=2000, aux4=2000, aux5=2000, aux6=2000, aux7=2000, aux8=2000, aux9=2000, aux10=2000, aux11=2000, aux12=2000):
-        self.channels[:16] = [chT, chR, chE, chA, aux1, aux2, aux3, aux4, aux5, aux6, aux7, aux8, aux9, aux10, aux11, aux12]
+    def set_rc_channels(self, **kwargs):
+        """
+        Update specific RC channels. Only the channels passed in kwargs will be updated.
+        """
+        channel_map = {
+            'chT': 0, 'chA': 1, 'chE': 2, 'chR': 3,
+            'aux1': 4, 'aux2': 5, 'aux3': 6, 'aux4': 7,
+            'aux5': 8, 'aux6': 9, 'aux7': 10, 'aux8': 11,
+            'aux9': 12, 'aux10': 13, 'aux11': 14, 'aux12': 15,
+        }
+        
+        for channel, value in kwargs.items():
+            if channel in channel_map:
+                self.channels[channel_map[channel]] = value
 
-    def set_channel_init(self): # Center Sticks, Zero Throttle, Disarm
+
+    def init_rc_channels(self): # Center Sticks, Zero Throttle, Disarm
         OUTPUT_MIN = 1000  # Output for Position 1
         OUTPUT_MID = 1500  # Output for Position 2
         OUTPUT_MAX = 2000  # Output for Position 3
@@ -408,7 +426,7 @@ if __name__ == "__main__":
     #whoopnet_io.set_attitude_callback(attitude_event_handler)
     #whoopnet_io.set_battery_callback(battery_event_handler)
     whoopnet_io.start()
-    whoopnet_io.set_channel_init()
+    whoopnet_io.init_rc_channels()
 
     while runtime_exec:
         time.sleep(0.001)
