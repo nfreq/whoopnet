@@ -29,6 +29,42 @@ class ControlAction(Enum):
     TURTLE = 'turtle'
     HEARTBEAT = 'heartbeat'
 
+class RCChannelMixer:
+    def __init__(self):
+        self.manual_channels = {
+            'chT': 1000,  # Default throttle
+            'chR': 1500,  # Default yaw
+            'chA': 1500,  # Default roll
+            'chE': 1500,  # Default pitch
+            'aux1': 2000, # Default arm
+            'aux3': 1500, # Default mode
+            'aux4': 1500, # Default turtle
+            'aux8': 1500, # Default auto
+        }
+        self.ai_channels = {
+            'chT': None,
+            'chR': None,
+            'chA': None,
+            'chE': None,
+        }  # AI cannot control aux channels
+
+    def update_manual(self, **kwargs):
+        self.manual_channels.update(kwargs)
+
+    def update_ai(self, **kwargs):
+        self.ai_channels.update(kwargs)
+
+    def mix_channels(self, mix_active):
+        """Mix manual and AI channels based on the mix_active flag."""
+        mixed_channels = {}
+        for key in self.manual_channels:
+            if key.startswith('aux'):  # Aux channels are always manual
+                mixed_channels[key] = self.manual_channels[key]
+            else:
+                mixed_channels[key] = self.ai_channels[key] if mix_active and self.ai_channels[key] is not None else self.manual_channels[key]
+        return mixed_channels
+
+
 class HandsetInputHandler(threading.Thread):
     RAW_MIN = -32062
     RAW_MAX = 32061
@@ -116,6 +152,67 @@ class HandsetInputHandler(threading.Thread):
         self.running = False
 
 
+class RCMixer(threading.Thread):
+    def __init__(self, whoopnet_io):
+        super().__init__(daemon=True)
+        self.whoopnet_io = whoopnet_io
+        self.handset_event_queue = Queue()
+        self.handset_input_thread = HandsetInputHandler(event_queue=self.handset_event_queue)
+        self.mixer = RCChannelMixer()
+
+        self.prev_arm = None
+        self.prev_auto = 2000
+        self.mix_active = False
+        self.last_ai_action = time.time()
+        self.sine_start = time.time()
+        self.runtime_exec = True
+
+    def start_mixer(self):
+        self.handset_input_thread.start()
+        self.start()
+
+    def stop_mixer(self):
+        self.runtime_exec = False
+        self.handset_input_thread.stop()
+
+    def run(self):
+        while self.runtime_exec:
+            try:
+                arm, auto, mode, turtle, throttle, yaw, pitch, roll = self.handset_event_queue.get_nowait()
+
+                if self.prev_auto != auto:
+                    self.prev_auto = auto
+                    if auto == 2000:
+                        logger.info("manual control active")
+                        self.mix_active = False
+                    elif auto == 1000:
+                        logger.info("mixed AI control active")
+                        self.mix_active = True
+
+                self.mixer.update_manual(chT=throttle, chR=yaw, chA=roll, chE=pitch, aux1=arm, aux3=mode, aux8=auto)
+
+                if self.prev_arm != arm:
+                    self.prev_arm = arm
+                    if arm == 2000:
+                        logger.info("armed")
+                    elif arm == 1000:
+                        logger.info("disarmed")
+
+            except Empty:
+                pass
+
+            if self.mix_active:
+                if time.time() > self.last_ai_action + 0.02:
+                    self.last_ai_action = time.time()
+                    elapsed_time = time.time() - self.sine_start
+                    wave = math.sin(2 * math.pi * elapsed_time / 2)
+                    ai_action = int(1500 + wave * 400)
+                    self.mixer.update_ai(chT=ai_action)
+
+            mixed_channels = self.mixer.mix_channels(self.mix_active)
+            self.whoopnet_io.set_rc_channels(**mixed_channels)
+
+
 runtime_exec = True
 def signal_handler(sig, frame):
     global runtime_exec
@@ -123,55 +220,15 @@ def signal_handler(sig, frame):
     runtime_exec = False
 
 if __name__ == "__main__":
+    from whoopnet_io import WhoopnetIO
+
     whoopnet_io = WhoopnetIO()
     whoopnet_io.start()
     whoopnet_io.init_rc_channels()
 
-    handset_event_queue = Queue()
-    handset_input_thread = HandsetInputHandler(event_queue=handset_event_queue)
-    handset_input_thread.start()
-        
-    prev_arm = None
-    prev_auto = 2000
-
-    mix_active = False
-    last_ai_action = time.time()
-
-    sine_start = time.time()
-    while runtime_exec:
-        try:
-            arm, auto, mode, turtle, throttle, yaw, pitch, roll = handset_event_queue.get_nowait()
-            if prev_auto != auto: 
-                prev_auto = auto
-                if auto == 2000:
-                    logger.info("manual control active")
-                    mix_active = False
-                elif auto == 1000:
-                    logger.info("mixed ai control active")
-                    mix_active = True
-            
-            if mix_active:
-                whoopnet_io.set_rc_channels(aux1=arm, aux3=mode, aux8=auto)
-            else:
-                whoopnet_io.set_rc_channels(chT=throttle, chR=yaw, chA=roll, chE=pitch, aux1=arm, aux3=mode, aux4=turtle, aux8=auto)
-            
-            if prev_arm != arm: # this needs to come from vehicle
-                prev_arm = arm
-                if arm == 2000:
-                    logger.info("armed")
-                elif arm == 1000:
-                    logger.info("disarmed")
-               
-        except Empty:
-            pass
-
-        if mix_active:
-            if time.time() > last_ai_action + 0.02:
-                last_ai_action = time.time()
-                elapsed_time = time.time() - sine_start
-                wave = math.sin(2 * math.pi * elapsed_time / 2)
-                ai_action = int(1500 + wave * 400)
-                whoopnet_io.set_rc_channels(chR=ai_action)
-                
-    handset_input_thread.stop()
-    whoopnet_io.stop()
+    mixer = RCMixer(whoopnet_io)
+    try:
+        mixer.start_mixer()
+        mixer.join()
+    finally:
+        mixer.stop_mixer()

@@ -2,9 +2,11 @@ import time
 import signal
 import argparse
 import rclpy
-from whoopnet_io import WhoopnetIO
-from whoopnet_node import WhoopnetNode
 import signal
+from whoopnet_io import WhoopnetIO
+from whoopnet_rc_mixer import RCMixer
+from whoopnet_ros_interface import WhoopnetNode
+
 
 runtime_exec = True
 def signal_handler(sig, frame):
@@ -50,10 +52,14 @@ if __name__ == "__main__":
     #whoopnet_io.set_attitude_callback(attitude_event_handler)
     #whoopnet_io.set_battery_callback(battery_event_handler)
     whoopnet_io.start()
-    whoopnet_io.set_channel_init()
+    whoopnet_io.init_rc_channels()
+
+    mixer = RCMixer(whoopnet_io)
+    mixer.start_mixer()
 
     while runtime_exec:
         rclpy.spin_once(ros2_node, timeout_sec=0.1)
         time.sleep(0.001)
 
+    mixer.stop_mixer()
     whoopnet_io.stop()

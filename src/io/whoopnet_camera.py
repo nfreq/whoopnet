@@ -1,4 +1,4 @@
-from whoopnet_node import WhoopnetNode
+from whoopnet_ros_interface import WhoopnetNode
 import rclpy
 import cv2
 import numpy as np
