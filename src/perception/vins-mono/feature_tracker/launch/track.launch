@@ -1,0 +1,9 @@
+<launch>
+    <arg name="config_path" default = "$(find-pkg-share vins_estimator)/config/hdzero/mobula6_config.yaml" />
+	<arg name="vins_path" default = "$(find-pkg-share vins_estimator)" />
+    
+    <node name="feature_tracker" pkg="feature_tracker" exec="feature_tracker" output="log">
+        <param name="config_file" value="$(var config_path)" />
+        <param name="vins_folder" value="$(var vins_path)" />
+    </node>
+</launch>

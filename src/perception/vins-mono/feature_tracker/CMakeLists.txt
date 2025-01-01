@@ -28,7 +28,7 @@ find_package(message_filters REQUIRED)
 find_package(camera_model REQUIRED)
 include_directories(${camera_model_INCLUDE_DIRS})
 
-find_package(OpenCV 4 REQUIRED)
+find_package(OpenCV 4.5 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -55,6 +55,11 @@ install(
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY 
+  launch 
+  DESTINATION share/${PROJECT_NAME}
 )
 
 ament_package()

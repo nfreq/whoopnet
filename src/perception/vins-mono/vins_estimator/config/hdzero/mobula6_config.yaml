@@ -7,7 +7,7 @@
 
 #common parameters
 imu_topic: "/whoopnet/io/imu"
-image_topic: "/whoopnet/io/camera"
+image_topic: "/whoopnet/io/camera_compressed"
 output_path: "/mnt/weightstorage/nfreq/whoopnet/log/vins-mono/output"
 
 #camera calibration 
