@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, CompressedImage
 import numpy as np
 import cv2
 from transformers import AutoImageProcessor, ZoeDepthForDepthEstimation
@@ -9,14 +9,20 @@ import torch
 class DepthEstimationNode(Node):
     def __init__(self):
         super().__init__('depth_estimation_node')
+        #self.image_subscriber = self.create_subscription(
+        #    Image,
+        #    '/whoopnet/io/camera_compressed',
+        #    self.image_callback,
+        #    10
+        #)
         self.image_subscriber = self.create_subscription(
-            Image,
-            '/whoopnet/io/camera_',
+            CompressedImage,  # Use CompressedImage type
+            '/whoopnet/io/camera_compressed',
             self.image_callback,
             10
         )
         self.depth_publisher = self.create_publisher(
-            Image,
+            CompressedImage,
             '/whoopnet/perception/depth_zoedepth',
             10
         )
@@ -28,14 +34,13 @@ class DepthEstimationNode(Node):
 
         self.get_logger().info("zoedepth initialized")
 
-    def image_callback(self, msg):
+    def image_callback(self, msg: CompressedImage):
         try:
             self.frame_count += 1
             if self.frame_count % self.frame_skip != 0:
                 return
-            # Convert ROS Image message to OpenCV (NumPy) array
-            frame = np.frombuffer(msg.data, dtype=np.uint8).reshape(msg.height, msg.width, -1)
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame = np.frombuffer(msg.data, np.uint8)  # Convert the data back into a numpy array
+            frame_rgb = cv2.imdecode(frame, cv2.IMREAD_COLOR)  # Decode the image
             #downscaled_frame = cv2.resize(frame_rgb, (128, 128), interpolation=cv2.INTER_AREA)            
             
             inputs = self.image_processor(images=frame_rgb, return_tensors="pt").to("cuda:0")
@@ -51,15 +56,20 @@ class DepthEstimationNode(Node):
             depth = (predicted_depth - predicted_depth.min()) / (predicted_depth.max() - predicted_depth.min())
             depth_image_np = (depth.detach().cpu().numpy() * 255).astype(np.uint8)
 
-            depth_msg = Image()
-            depth_msg.header = msg.header
-            depth_msg.height = depth_image_np.shape[0]
-            depth_msg.width = depth_image_np.shape[1]
-            depth_msg.encoding = "mono8"
-            depth_msg.step = depth_image_np.shape[1]
-            depth_msg.data = depth_image_np.tobytes()
+            encode_params = [cv2.IMWRITE_JPEG_QUALITY, 80]
+            success, encoded_image = cv2.imencode('.jpg', depth_image_np, encode_params)
+            if not success:
+                self.get_logger().error("Failed to encode image for compressed feed")
+                return
+            
+            depth_msg = CompressedImage()
+            depth_msg.header.stamp = self.get_clock().now().to_msg()  # Add current timestamp
+            depth_msg.header.frame_id = "zoedepth"  # Optional, update as needed
+            depth_msg.format = "jpeg"
+            depth_msg.data = encoded_image.tobytes()  # Convert numpy array to bytes
 
             self.depth_publisher.publish(depth_msg)
+
 
         except Exception as e:
             self.get_logger().error(f"Failed to process image: {e}")

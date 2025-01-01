@@ -1,12 +1,14 @@
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 from rclpy.node import Node
-from sensor_msgs.msg import Imu, BatteryState, Image
+from sensor_msgs.msg import Imu, BatteryState, Image, CompressedImage
 from geometry_msgs.msg import Vector3Stamped
 from sensor_msgs.msg import Joy
 from cv_bridge import CvBridge
 import builtin_interfaces.msg
+import cv2
+import numpy as np
 
-class WhoopnetNode(Node):
+class WhoopnetNode(Node): 
     def __init__(self):
         super().__init__('flight_interface_node')
         qos_profile = QoSProfile(
@@ -17,6 +19,7 @@ class WhoopnetNode(Node):
         self.imu_publisher = self.create_publisher(Imu, 'whoopnet/io/imu', qos_profile=qos_profile)
         self.camera_publisher = self.create_publisher(Image, 'whoopnet/io/camera', qos_profile=qos_profile)
         self.camera_corrected_publisher = self.create_publisher(Image, 'whoopnet/io/camera_corrected', qos_profile=qos_profile)
+        self.compressed_camera_publisher = self.create_publisher(CompressedImage, 'whoopnet/io/camera_compressed', qos_profile=qos_profile)
         self.attitude_publisher = self.create_publisher(Vector3Stamped, 'whoopnet/io/attitude', qos_profile=qos_profile)
         self.battery_publisher = self.create_publisher(BatteryState, 'whoopnet/io/battery', qos_profile=qos_profile)
         self.rc_publisher = self.create_publisher(Joy, 'whoopnet/io/command', qos_profile=qos_profile)
@@ -70,6 +73,30 @@ class WhoopnetNode(Node):
             self.camera_publisher.publish(ros_image)
         except Exception as e:
             self.get_logger().error(f"Failed to publish camera feed: {e}")
+
+    def publish_compressed_camera(self, img, timestamp_ms):
+        try:
+            secs = int(timestamp_ms / 1000)
+            nsecs = int((timestamp_ms % 1000) * 1_000_000)
+            stamp_msg = builtin_interfaces.msg.Time()
+            stamp_msg.sec = secs
+            stamp_msg.nanosec = nsecs
+
+            # Encode the image as JPEG
+            encode_params = [cv2.IMWRITE_JPEG_QUALITY, 80]
+            success, encoded_image = cv2.imencode('.jpg', img, encode_params)
+            if not success:
+                self.get_logger().error("Failed to encode image for compressed feed")
+                return
+
+            ros_image = CompressedImage()
+            ros_image.header.stamp = stamp_msg
+            ros_image.header.frame_id = "camera"
+            ros_image.format = "jpeg"
+            ros_image.data = np.array(encoded_image).tobytes()
+            self.compressed_camera_publisher.publish(ros_image)
+        except Exception as e:
+            self.get_logger().error(f"Failed to publish compressed camera feed: {e}")
 
     def publish_attitude(self, attitude_data):
         msg = Vector3Stamped()

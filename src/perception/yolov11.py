@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, CompressedImage
 import numpy as np
 import cv2
 import torch
@@ -11,13 +11,13 @@ class YoloV11(Node):
     def __init__(self):
         super().__init__('yolo_node')
         self.image_subscriber = self.create_subscription(
-            Image,
-            '/whoopnet/io/camera',
+            CompressedImage,  # Use CompressedImage type
+            '/whoopnet/io/camera_compressed',
             self.image_callback,
             10
         )
         self.yolo_publisher = self.create_publisher(
-            Image,
+            CompressedImage,
             '/whoopnet/perception/yolo',
             10
         )
@@ -29,29 +29,48 @@ class YoloV11(Node):
 
         self.get_logger().info("Yolo v11 Node initialized.")
 
-    def image_callback(self, msg):
+
+    def image_callback(self, msg: CompressedImage):
         try:
+            # Skip frames based on frame_skip parameter
             self.frame_count += 1
             if self.frame_count % self.frame_skip != 0:
                 return
-            
-            frame = np.frombuffer(msg.data, dtype=np.uint8).reshape(msg.height, msg.width, -1)
-            image = PILImage.fromarray(frame)
+
+            # Decode the compressed image from the message
+            frame = np.frombuffer(msg.data, np.uint8)  # Convert raw bytes to numpy array
+            frame_rgb = cv2.imdecode(frame, cv2.IMREAD_COLOR)  # Decode the image
+            if frame_rgb is None:
+                self.get_logger().error("Failed to decode compressed image")
+                return
+
+            # Convert to PIL Image for YOLO model processing
+            image = PILImage.fromarray(cv2.cvtColor(frame_rgb, cv2.COLOR_BGR2RGB))  # Convert BGR to RGB
             results = self.model.track(image, device='cuda:1', verbose=False, persist=True)
+
+            # Annotate the frame with YOLO results
             annotated_frame = results[0].plot()
 
-            yolo_msg = Image()
-            yolo_msg.header = msg.header  # Preserve the original message header
-            yolo_msg.height = annotated_frame.shape[0]
-            yolo_msg.width = annotated_frame.shape[1]
-            yolo_msg.encoding = "rgb8"  # Assuming the annotated frame is in RGB format
-            yolo_msg.step = annotated_frame.shape[1] * 3  # Width * 3 (bytes per pixel for RGB)
-            yolo_msg.data = annotated_frame.tobytes()  # Convert NumPy array to byte data
+            # Encode the annotated frame as JPEG for publishing
+            encode_params = [cv2.IMWRITE_JPEG_QUALITY, 80]
+            success, encoded_image = cv2.imencode('.jpg', annotated_frame, encode_params)
+            if not success:
+                self.get_logger().error("Failed to encode image for compressed feed")
+                return
 
+            # Create a new CompressedImage message
+            yolo_msg = CompressedImage()
+            yolo_msg.header.stamp = self.get_clock().now().to_msg()  # Add current timestamp
+            yolo_msg.header.frame_id = "yolov11"  # Optional, update as needed
+            yolo_msg.format = "jpeg"
+            yolo_msg.data = encoded_image.tobytes()  # Convert numpy array to bytes
+
+            # Publish the annotated compressed image
             self.yolo_publisher.publish(yolo_msg)
 
         except Exception as e:
-            self.get_logger().error(f"Failed to process image: {e}")
+            self.get_logger().error(f"Error in image_callback: {e}")
+
 
 
 def main(args=None):
