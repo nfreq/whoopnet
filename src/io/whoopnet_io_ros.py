@@ -35,6 +35,9 @@ if __name__ == "__main__":
     def device_info_event_handler(device_infpo):
         pass
 
+    def command_event_handler(command_data):
+        ros2_node.publish_rc_values(command_data)
+
     def imu_event_handler(imu_data):
         ros2_node.publish_imu(imu_data)
 
@@ -47,6 +50,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
 
     whoopnet_io = WhoopnetIO(args.device)
+    whoopnet_io.set_command_callback(command_event_handler)
     whoopnet_io.set_imu_callback(imu_event_handler)
     #whoopnet_io.set_device_info_callback(device_info_event_handler)
     #whoopnet_io.set_attitude_callback(attitude_event_handler)
@@ -58,12 +62,7 @@ if __name__ == "__main__":
     mixer.start_mixer()
 
     while runtime_exec:
-        rc_channels = whoopnet_io.get_new_rc_channels()
-        if rc_channels is not None:
-            ros2_node.publish_rc_values(rc_channels)
-
-        rclpy.spin_once(ros2_node, timeout_sec=0.1)
-        time.sleep(0.001)
-
+        rclpy.spin_once(ros2_node, timeout_sec=0.2)
+       
     mixer.stop_mixer()
     whoopnet_io.stop()

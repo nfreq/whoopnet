@@ -63,6 +63,7 @@ class WhoopnetIO(threading.Thread):
         self.battery_callback: Optional[Callable[[tuple], None]] = None
         self.attitude_callback: Optional[Callable[[tuple], None]] = None
         self.imu_callback: Optional[Callable[[tuple], None]] = None
+        self.command_callback: Optional[Callable[[tuple], None]] = None
        
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
@@ -88,7 +89,7 @@ class WhoopnetIO(threading.Thread):
                 while self.running:
                     if time.time() > last_time + 1/500.0:
                         last_time = time.time()
-                        self.send_channel_data()
+                        self.send_channel_data()                   
                     self.read_incoming_data()
                     time.sleep(self.PACKET_RATE_SEC)
         except SerialException as e:
@@ -117,9 +118,14 @@ class WhoopnetIO(threading.Thread):
     def set_imu_callback(self, callback: Callable[[tuple], None]):
         self.imu_callback = callback
 
+    def set_command_callback(self, callback: Callable[[tuple], None]):
+        self.command_callback = callback
+
     def send_channel_data(self):
         packet = self.create_packet_channels(self.channels)
         self.serial_conn.write(packet)
+        if self.command_callback:
+            self.command_callback(self.channels)
 
     def read_incoming_data(self):
         try:
@@ -279,7 +285,7 @@ class WhoopnetIO(threading.Thread):
             return None
         else:
             self.previous_channels = self.channels.copy()
-            return self.previous_channels
+            return self.channels
 
     def init_rc_channels(self): # Center Sticks, Zero Throttle, Disarm
         OUTPUT_MIN = 1000  # Output for Position 1

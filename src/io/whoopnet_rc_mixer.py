@@ -41,12 +41,7 @@ class RCChannelMixer:
             'aux4': 1500, # Default turtle
             'aux8': 1500, # Default auto
         }
-        self.ai_channels = {
-            'chT': None,
-            'chR': None,
-            'chA': None,
-            'chE': None,
-        }  # AI cannot control aux channels
+        self.ai_channels = {key: None for key in ('chT', 'chR', 'chA', 'chE')}  # AI cannot control aux channels
 
     def update_manual(self, **kwargs):
         self.manual_channels.update(kwargs)
@@ -56,13 +51,13 @@ class RCChannelMixer:
 
     def mix_channels(self, mix_active):
         """Mix manual and AI channels based on the mix_active flag."""
-        mixed_channels = {}
-        for key in self.manual_channels:
-            if key.startswith('aux'):  # Aux channels are always manual
-                mixed_channels[key] = self.manual_channels[key]
-            else:
-                mixed_channels[key] = self.ai_channels[key] if mix_active and self.ai_channels[key] is not None else self.manual_channels[key]
-        return mixed_channels
+        return {
+            key: (
+                self.ai_channels[key] if mix_active and key in self.ai_channels and self.ai_channels[key] is not None
+                else self.manual_channels[key]
+            )
+            for key in self.manual_channels
+        }
 
 
 class HandsetInputHandler(threading.Thread):
@@ -205,8 +200,8 @@ class RCMixer(threading.Thread):
                 if time.time() > self.last_ai_action + 0.02:
                     self.last_ai_action = time.time()
                     elapsed_time = time.time() - self.sine_start
-                    wave = math.sin(2 * math.pi * elapsed_time / 2)
-                    ai_action = int(1500 + wave * 400)
+                    wave = math.sin(2 * math.pi * elapsed_time / 3)
+                    ai_action = int(1500 + wave * 200)
                     self.mixer.update_ai(chT=ai_action)
 
             mixed_channels = self.mixer.mix_channels(self.mix_active)
