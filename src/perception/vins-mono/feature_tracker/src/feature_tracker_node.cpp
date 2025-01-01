@@ -1,12 +1,10 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
-#include <sensor_msgs/msg/compressed_image.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/point_cloud.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include <cv_bridge/cv_bridge.h>
-#include <opencv2/opencv.hpp>
 #include <message_filters/subscriber.h>
 
 #include "feature_tracker.h"
@@ -34,28 +32,20 @@ double toSec(const T &time) {
     return time.sec + time.nanosec / 1e9;
 }
 
-void img_callback(sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg)
+void img_callback(sensor_msgs::msg::Image::ConstSharedPtr img_msg)
 {
-    cv::Mat img = cv::imdecode(cv::Mat(img_msg->data), cv::IMREAD_COLOR);
-    if (img.empty())
-    {
-        RCLCPP_ERROR(rclcpp::get_logger("CompressedImage"), "Failed to decode image!");
-        return;
-    }
-
-    if (first_image_flag)
+    if(first_image_flag)
     {
         first_image_flag = false;
         first_image_time = toSec(img_msg->header.stamp);
         last_image_time = toSec(img_msg->header.stamp);
         return;
     }
-
-    // Detect unstable camera stream
+    // detect unstable camera stream
     if (toSec(img_msg->header.stamp) - last_image_time > 1.0 || toSec(img_msg->header.stamp) < last_image_time)
     {
         RCLCPP_WARN(node->get_logger(), "%s image discontinue! reset the feature tracker!", AT);
-        first_image_flag = true;
+        first_image_flag = true; 
         last_image_time = 0;
         pub_count = 1;
         std_msgs::msg::Bool restart_flag;
@@ -64,11 +54,11 @@ void img_callback(sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg)
         return;
     }
     last_image_time = toSec(img_msg->header.stamp);
-
-    // Frequency control
+    // frequency control
     if (round(1.0 * pub_count / (toSec(img_msg->header.stamp) - first_image_time)) <= FREQ)
     {
         PUB_THIS_FRAME = true;
+        // reset the frequency control
         if (abs(1.0 * pub_count / (toSec(img_msg->header.stamp) - first_image_time) - FREQ) < 0.01 * FREQ)
         {
             first_image_time = toSec(img_msg->header.stamp);
@@ -76,14 +66,23 @@ void img_callback(sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg)
         }
     }
     else
-    {
         PUB_THIS_FRAME = false;
-    }
 
-    cv_bridge::CvImagePtr ptr(new cv_bridge::CvImage);
-    ptr->header = img_msg->header;
-    ptr->image = img;
-    ptr->encoding = sensor_msgs::image_encodings::BGR8;
+    cv_bridge::CvImageConstPtr ptr;
+    if (img_msg->encoding == "8UC1")
+    {
+        sensor_msgs::msg::Image img;
+        img.header = img_msg->header;
+        img.height = img_msg->height;
+        img.width = img_msg->width;
+        img.is_bigendian = img_msg->is_bigendian;
+        img.step = img_msg->step;
+        img.data = img_msg->data;
+        img.encoding = "mono8";
+        ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::MONO8);
+    }
+    else
+        ptr = cv_bridge::toCvCopy(img_msg, sensor_msgs::image_encodings::MONO8);
 
     cv::Mat show_img = ptr->image;
     TicToc t_r;
@@ -118,8 +117,8 @@ void img_callback(sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg)
             break;
     }
 
-    if (PUB_THIS_FRAME)
-    {
+   if (PUB_THIS_FRAME)
+   {
         pub_count++;
         sensor_msgs::msg::PointCloud::SharedPtr feature_points(new sensor_msgs::msg::PointCloud);
         sensor_msgs::msg::ChannelFloat32 id_of_point;
@@ -164,7 +163,7 @@ void img_callback(sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg)
         feature_points->channels.push_back(velocity_x_of_point);
         feature_points->channels.push_back(velocity_y_of_point);
         RCLCPP_DEBUG(node->get_logger(), "%s publish %f, at %f", AT, toSec(feature_points->header.stamp), rclcpp::Clock().now().nanoseconds() / 1e9);
-        // skip the first image; since no optical speed on first image
+        // skip the first image; since no optical speed on frist image
         if (!init_pub)
         {
             init_pub = 1;
@@ -175,6 +174,7 @@ void img_callback(sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg)
         if (SHOW_TRACK)
         {
             ptr = cv_bridge::cvtColor(ptr, sensor_msgs::image_encodings::BGR8);
+            //cv::Mat stereo_img(ROW * NUM_OF_CAM, COL, CV_8UC3);
             cv::Mat stereo_img = ptr->image;
 
             for (int i = 0; i < NUM_OF_CAM; i++)
@@ -186,19 +186,28 @@ void img_callback(sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg)
                 {
                     double len = std::min(1.0, 1.0 * trackerData[i].track_cnt[j] / WINDOW_SIZE);
                     cv::circle(tmp_img, trackerData[i].cur_pts[j], 2, cv::Scalar(255 * (1 - len), 0, 255 * len), 2);
+                    //draw speed line
+                    /*
+                    Vector2d tmp_cur_un_pts (trackerData[i].cur_un_pts[j].x, trackerData[i].cur_un_pts[j].y);
+                    Vector2d tmp_pts_velocity (trackerData[i].pts_velocity[j].x, trackerData[i].pts_velocity[j].y);
+                    Vector3d tmp_prev_un_pts;
+                    tmp_prev_un_pts.head(2) = tmp_cur_un_pts - 0.10 * tmp_pts_velocity;
+                    tmp_prev_un_pts.z() = 1;
+                    Vector2d tmp_prev_uv;
+                    trackerData[i].m_camera->spaceToPlane(tmp_prev_un_pts, tmp_prev_uv);
+                    cv::line(tmp_img, trackerData[i].cur_pts[j], cv::Point2f(tmp_prev_uv.x(), tmp_prev_uv.y()), cv::Scalar(255 , 0, 0), 1 , 8, 0);
+                    */
+                    //char name[10];
+                    //sprintf(name, "%d", trackerData[i].ids[j]);
+                    //cv::putText(tmp_img, name, trackerData[i].cur_pts[j], cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0));
                 }
             }
-
-            sensor_msgs::msg::CompressedImage::SharedPtr compressed_msg(new sensor_msgs::msg::CompressedImage);
-            compressed_msg->header = img_msg->header;
-            compressed_msg->format = "jpeg";
-            std::vector<uchar> buf;
-            cv::imencode(".jpg", ptr->image, buf);
-            compressed_msg->data = std::move(buf);
-
-            pub_match->publish(*compressed_msg);
+            //cv::imshow("vis", stereo_img);
+            //cv::waitKey(5);
+            pub_match->publish(*ptr->toImageMsg());
         }
     }
+    // RCLCPP_INFO(node->get_logger(), "%s whole feature tracker processing costs: %f ms", AT, t_r.toc());
 }
 
 int main(int argc, char **argv)
@@ -225,8 +234,7 @@ int main(int argc, char **argv)
         }
     }
 
-    //auto sub_img = node->create_subscription<sensor_msgs::msg::Image>(IMAGE_TOPIC, rclcpp::QoS(rclcpp::KeepLast(100)), img_callback);
-    auto sub_img = node->create_subscription<sensor_msgs::msg::CompressedImage>(IMAGE_TOPIC,rclcpp::QoS(rclcpp::KeepLast(100)),img_callback);
+    auto sub_img = node->create_subscription<sensor_msgs::msg::Image>(IMAGE_TOPIC, rclcpp::QoS(rclcpp::KeepLast(100)), img_callback);
 
     pub_img = node->create_publisher<sensor_msgs::msg::PointCloud>("/feature_tracker/feature", 1000);
     pub_match = node->create_publisher<sensor_msgs::msg::Image>("/feature_tracker/feature_img",1000);
