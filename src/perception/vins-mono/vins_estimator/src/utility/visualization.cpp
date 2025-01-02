@@ -24,19 +24,23 @@ static Vector3d last_path(0.0, 0.0, 0.0);
 
 void registerPub(const rclcpp::Node::SharedPtr &n)
 {
-    pub_latest_odometry = n->create_publisher<nav_msgs::msg::Odometry>("/vins_estimator/imu_propagate", 1000);
-    pub_path = n->create_publisher<nav_msgs::msg::Path>("/vins_estimator/path", 1000);
-    pub_relo_path = n->create_publisher<nav_msgs::msg::Path>("/vins_estimator/relocalization_path", 1000);
-    pub_odometry = n->create_publisher<nav_msgs::msg::Odometry>("/vins_estimator/odometry", 1000);
-    pub_point_cloud = n->create_publisher<sensor_msgs::msg::PointCloud2>("/vins_estimator/point_cloud", 1000);
-    pub_margin_cloud = n->create_publisher<sensor_msgs::msg::PointCloud2>("/vins_estimator/history_cloud", 1000);
-    pub_key_poses = n->create_publisher<visualization_msgs::msg::Marker>("/vins_estimator/key_poses", 1000);
-    pub_camera_pose = n->create_publisher<nav_msgs::msg::Odometry>("/vins_estimator/camera_pose", 1000);
-    pub_camera_pose_visual = n->create_publisher<visualization_msgs::msg::MarkerArray>("/vins_estimator/camera_pose_visual", 1000);
-    pub_keyframe_pose = n->create_publisher<nav_msgs::msg::Odometry>("/vins_estimator/keyframe_pose", 1000);
-    pub_keyframe_point = n->create_publisher<sensor_msgs::msg::PointCloud>("/vins_estimator/keyframe_point", 10000);
-    pub_extrinsic = n->create_publisher<nav_msgs::msg::Odometry>("/vins_estimator/extrinsic", 1000);
-    pub_relo_relative_pose=  n->create_publisher<nav_msgs::msg::Odometry>("/vins_estimator/relo_relative_pose", 1000);
+    rclcpp::QoS qos_besteffort = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_default))
+                            .reliability(rclcpp::ReliabilityPolicy::BestEffort)
+                            .history(rclcpp::HistoryPolicy::KeepLast)
+                            .keep_last(100);
+    pub_latest_odometry = n->create_publisher<nav_msgs::msg::Odometry>("/vins_estimator/imu_propagate", qos_besteffort);
+    pub_path = n->create_publisher<nav_msgs::msg::Path>("/vins_estimator/path", qos_besteffort);
+    pub_relo_path = n->create_publisher<nav_msgs::msg::Path>("/vins_estimator/relocalization_path", qos_besteffort);
+    pub_odometry = n->create_publisher<nav_msgs::msg::Odometry>("/vins_estimator/odometry", qos_besteffort);
+    pub_point_cloud = n->create_publisher<sensor_msgs::msg::PointCloud2>("/vins_estimator/point_cloud", qos_besteffort);
+    pub_margin_cloud = n->create_publisher<sensor_msgs::msg::PointCloud2>("/vins_estimator/history_cloud", qos_besteffort);
+    pub_key_poses = n->create_publisher<visualization_msgs::msg::Marker>("/vins_estimator/key_poses", qos_besteffort);
+    pub_camera_pose = n->create_publisher<nav_msgs::msg::Odometry>("/vins_estimator/camera_pose", qos_besteffort);
+    pub_camera_pose_visual = n->create_publisher<visualization_msgs::msg::MarkerArray>("/vins_estimator/camera_pose_visual", qos_besteffort);
+    pub_keyframe_pose = n->create_publisher<nav_msgs::msg::Odometry>("/vins_estimator/keyframe_pose", qos_besteffort);
+    pub_keyframe_point = n->create_publisher<sensor_msgs::msg::PointCloud>("/vins_estimator/keyframe_point", qos_besteffort);
+    pub_extrinsic = n->create_publisher<nav_msgs::msg::Odometry>("/vins_estimator/extrinsic", qos_besteffort);
+    pub_relo_relative_pose=  n->create_publisher<nav_msgs::msg::Odometry>("/vins_estimator/relo_relative_pose", qos_besteffort);
 
     cameraposevisual.setScale(1);
     cameraposevisual.setLineWidth(0.05);

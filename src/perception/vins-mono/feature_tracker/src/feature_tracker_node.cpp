@@ -236,12 +236,16 @@ int main(int argc, char **argv)
         }
     }
 
-    rclcpp::QoS qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_default)).reliability(rclcpp::ReliabilityPolicy::Reliable);
+    rclcpp::QoS qos_reliable = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_default)).reliability(rclcpp::ReliabilityPolicy::Reliable);
+    rclcpp::QoS qos_besteffort = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_default))
+                              .reliability(rclcpp::ReliabilityPolicy::BestEffort)
+                              .history(rclcpp::HistoryPolicy::KeepLast)
+                              .keep_last(100);
 
-    auto sub_img = node->create_subscription<sensor_msgs::msg::CompressedImage>(IMAGE_TOPIC,qos,img_callback);
-    pub_img = node->create_publisher<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/feature", qos);
-    pub_match = node->create_publisher<sensor_msgs::msg::CompressedImage>("whoopnet/perception/vins_mono/feature_tracker/feature_img", qos);
-    pub_restart = node->create_publisher<std_msgs::msg::Bool>("whoopnet/perception/vins_mono/feature_tracker/restart",qos);
+    auto sub_img = node->create_subscription<sensor_msgs::msg::CompressedImage>(IMAGE_TOPIC,qos_besteffort,img_callback);
+    pub_img = node->create_publisher<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/feature", qos_besteffort);
+    pub_match = node->create_publisher<sensor_msgs::msg::CompressedImage>("whoopnet/perception/vins_mono/feature_tracker/feature_img", qos_besteffort);
+    pub_restart = node->create_publisher<std_msgs::msg::Bool>("whoopnet/perception/vins_mono/feature_tracker/restart",qos_reliable);
 
     rclcpp::spin(node);
     return 0;

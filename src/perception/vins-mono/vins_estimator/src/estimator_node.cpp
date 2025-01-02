@@ -116,7 +116,7 @@ getMeasurements()
 
         if (!(Utility::toSec(imu_buf.front()->header.stamp) < Utility::toSec(feature_buf.front()->header.stamp) + estimator.td))
         {
-            //RCLCPP_WARN(node->get_logger(), "%s throw img, only should happen at the beginning", AT);
+            RCLCPP_WARN(node->get_logger(), "%s throw img, only should happen at the beginning", AT);
             feature_buf.pop();
             continue;
         }
@@ -356,12 +356,15 @@ int main(int argc, char **argv)
 
     registerPub(node);
 
-    rclcpp::QoS qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_default)).reliability(rclcpp::ReliabilityPolicy::Reliable);
-
-    auto sub_imu = node->create_subscription<sensor_msgs::msg::Imu>(IMU_TOPIC, qos, imu_callback);
-    auto sub_image = node->create_subscription<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/feature", qos, feature_callback);
-    auto sub_restart = node->create_subscription<std_msgs::msg::Bool>("whoopnet/perception/vins_mono/feature_tracker/restart", qos, restart_callback);
-    auto sub_relo_points = node->create_subscription<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/pose_graph/match_points", qos, relocalization_callback);
+    rclcpp::QoS qos_reliable = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_default)).reliability(rclcpp::ReliabilityPolicy::Reliable);
+     rclcpp::QoS qos_besteffort = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_default))
+                              .reliability(rclcpp::ReliabilityPolicy::BestEffort)
+                              .history(rclcpp::HistoryPolicy::KeepLast)
+                              .keep_last(100);
+    auto sub_imu = node->create_subscription<sensor_msgs::msg::Imu>(IMU_TOPIC, qos_besteffort, imu_callback);
+    auto sub_image = node->create_subscription<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/feature", qos_besteffort, feature_callback);
+    auto sub_restart = node->create_subscription<std_msgs::msg::Bool>("whoopnet/perception/vins_mono/feature_tracker/restart", qos_reliable, restart_callback);
+    auto sub_relo_points = node->create_subscription<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/pose_graph/match_points", qos_reliable, relocalization_callback);
 
     std::thread measurement_process{process};
     rclcpp::spin(node);

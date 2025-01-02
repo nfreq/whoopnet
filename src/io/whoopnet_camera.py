@@ -79,8 +79,8 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, image_height)
 fps = cap.get(cv2.CAP_PROP_FPS)
 print(f"Video Capture FPS: {fps}")
 
-#K,D,image_size = load_calibration_data("hdzero_eco_960x720.json")
-#map1, map2 = cv2.fisheye.initUndistortRectifyMap(K, D, np.eye(3), K, image_size, cv2.CV_16SC2)
+K,D,image_size = load_calibration_data("cal/hdzero_eco_960x720_cb_6px_reprojecterr.json")
+map1, map2 = cv2.fisheye.initUndistortRectifyMap(K, D, np.eye(3), K, image_size, cv2.CV_16SC2)
 
 rclpy.init()
 ros_node = WhoopnetNode()
@@ -118,10 +118,10 @@ while runtime_exec:
             prev_timestamp = timestamp
 
         #cropped_frame = crop(frame, target_width, x_offset)
-        #undistorted_img = cv2.remap(cropped_frame, map1, map2, interpolation=cv2.INTER_LINEAR)
+        undistorted_img = cv2.remap(cropped_frame, map1, map2, interpolation=cv2.INTER_LINEAR)
         #downscaled_frame = cv2.resize(undistorted_img, (256, 256), interpolation=cv2.INTER_AREA)
 
-        ros_node.publish_compressed_camera(cropped_frame, math.ceil(pred_timestamp))
+        ros_node.publish_compressed_camera(undistorted_img, math.ceil(pred_timestamp))
         
         #ros_node.publish_camera_feed(cropped_frame, math.ceil(timestamp))
         rclpy.spin_once(ros_node, timeout_sec=0.0)        
