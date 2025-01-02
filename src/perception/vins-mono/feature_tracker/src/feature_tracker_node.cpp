@@ -84,7 +84,7 @@ void img_callback(sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg)
     cv_bridge::CvImagePtr ptr(new cv_bridge::CvImage);
     ptr->header = img_msg->header;
 
-ptr->image = img;
+    ptr->image = img;
     ptr->encoding = sensor_msgs::image_encodings::BGR8;
 
     cv::Mat show_img = ptr->image;
@@ -99,11 +99,11 @@ ptr->image = img;
             if (EQUALIZE)
             {
                 cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
-if (ptr->image.type() != CV_8UC1 && ptr->image.type() != CV_16UC1)
-{
-    RCLCPP_ERROR(node->get_logger(), "CLAHE requires an image of type CV_8UC1 or CV_16UC1. Converting to grayscale.");
-    cv::cvtColor(ptr->image, ptr->image, cv::COLOR_BGR2GRAY);
-}
+                if (ptr->image.type() != CV_8UC1 && ptr->image.type() != CV_16UC1)
+                {
+                    RCLCPP_ERROR(node->get_logger(), "CLAHE requires an image of type CV_8UC1 or CV_16UC1. Converting to grayscale.");
+                    cv::cvtColor(ptr->image, ptr->image, cv::COLOR_BGR2GRAY);
+                }
                 clahe->apply(ptr->image.rowRange(ROW * i, ROW * (i + 1)), trackerData[i].cur_img);
             }
             else
@@ -238,7 +238,7 @@ int main(int argc, char **argv)
 
     rclcpp::QoS qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_default)).reliability(rclcpp::ReliabilityPolicy::Reliable);
 
-    auto sub_img = node->create_subscription<sensor_msgs::msg::CompressedImage>(IMAGE_TOPIC,rclcpp::QoS(rclcpp::KeepLast(100)),img_callback);
+    auto sub_img = node->create_subscription<sensor_msgs::msg::CompressedImage>(IMAGE_TOPIC,qos,img_callback);
     pub_img = node->create_publisher<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/feature", qos);
     pub_match = node->create_publisher<sensor_msgs::msg::CompressedImage>("whoopnet/perception/vins_mono/feature_tracker/feature_img", qos);
     pub_restart = node->create_publisher<std_msgs::msg::Bool>("whoopnet/perception/vins_mono/feature_tracker/restart",qos);

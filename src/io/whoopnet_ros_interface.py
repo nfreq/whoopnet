@@ -17,12 +17,13 @@ class WhoopnetNode(Node):
             depth=10 
         )
         self.imu_publisher = self.create_publisher(Imu, 'whoopnet/io/imu', qos_profile=qos_profile)
-        self.camera_publisher = self.create_publisher(Image, 'whoopnet/io/camera', qos_profile=qos_profile)
-        self.camera_corrected_publisher = self.create_publisher(Image, 'whoopnet/io/camera_corrected', qos_profile=qos_profile)
-        self.compressed_camera_publisher = self.create_publisher(CompressedImage, 'whoopnet/io/camera_compressed', qos_profile=qos_profile)
         self.attitude_publisher = self.create_publisher(Vector3Stamped, 'whoopnet/io/attitude', qos_profile=qos_profile)
         self.battery_publisher = self.create_publisher(BatteryState, 'whoopnet/io/battery', qos_profile=qos_profile)
         self.rc_publisher = self.create_publisher(Joy, 'whoopnet/io/command', qos_profile=qos_profile)
+
+        self.camera_publisher = self.create_publisher(Image, 'whoopnet/io/camera', qos_profile=qos_profile)
+        self.camera_corrected_publisher = self.create_publisher(Image, 'whoopnet/io/camera_corrected', qos_profile=qos_profile)
+        self.compressed_camera_publisher = self.create_publisher(CompressedImage, 'whoopnet/io/camera_compressed', qos_profile=qos_profile)
         self.bridge = CvBridge()
 
     def publish_imu(self, imu_data):
