@@ -19,7 +19,8 @@ ___
   <img src="https://github.com/user-attachments/assets/7331890b-623d-4bba-9e12-3f2614ad0907" alt="whoopnet_hw" width="80%" style="display:inline-block;"> 
 </div>
 <div align="center">
-  <img width="467" alt="io" src="https://github.com/user-attachments/assets/d69b8239-7da3-4588-a2e5-e0ff1b9d51e4" />
+  <img width="50%" alt="io" src="https://github.com/user-attachments/assets/d69b8239-7da3-4588-a2e5-e0ff1b9d51e4" />
+  <img width="50% alt="200g brain" src="https://github.com/user-attachments/assets/20f0c1b4-5ced-48e1-adef-8a3f1b4f99bb" />
 </div>
 
 ___
@@ -39,4 +40,3 @@ ___
   2. Increase OSD refresh rate to 30hz and send FC timestamp (receive and extract via OCR)
 * ELRS v3 F1000HZ to support the telemetry bandwidth requirements
 * HDZero Video System (low and **fixed** latency)
-
