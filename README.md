@@ -32,6 +32,6 @@ ___
 ### Strategy
 * Betaflight FC firmware modifications:
   1. Disable Existing Telemetry. Send raw IMU CRSF telemetry packets @ ~100hz (include FC RTC timestamp)
-  2. Increase OSD Refresh Rate to 30hz and send FC RTC timestamp (data intake will extract via OCR)
+  2. Increase OSD Refresh Rate to 30hz and send FC RTC timestamp (recieve and extract via OCR)
 * ELRS v3 F1000HZ to support the new telemetry bandwidth requirements
 * ROS2 timestamps in IMU and Camera topics will use FC RTC timestamp to keep the data as synchronized as possible
