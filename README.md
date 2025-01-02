@@ -34,5 +34,5 @@ ___
 * Betaflight Modifications:
   1. Disable existing telemetry. Send raw IMU CRSF telemetry packets @ ~100hz (with FC timestamp)
   2. Increase OSD refresh rate to 30hz and send FC timestamp (receive and extract via OCR)
-* ELRS v3 F1000HZ to support the new telemetry bandwidth requirements
+* ELRS v3 F1000HZ to support the telemetry bandwidth requirements
 * HDZero Video System (low and **fixed** latency)
