@@ -15,16 +15,16 @@ model_type: PINHOLE
 camera_name: camera
 image_width: 960
 image_height: 720
-distortion_parameters: # we are correcting before publishing
-    k1: 0
-    k2: 0
-    p1: 0
-    p2: 0
+distortion_parameters: # Handling distortion before-hand ( don't do it twice )
+  k1: 0
+  k2: 0
+  p1: 0
+  p2: 0
 projection_parameters:
-  fx: 331.44095131
-  fy: 330.67147311
-  cx: 447.93654665
-  cy: 326.19860284
+  fx: 312.40107456
+  fy: 312.70178207
+  cx: 454.13656046
+  cy: 331.2299262
 
 # color_order: "BGR"
 # Extrinsic parameter between IMU and Camera.
@@ -54,7 +54,7 @@ freq: 0                # frequence (Hz) of publish tracking result. At least 10H
 F_threshold: 2.0 #1.0        # ransac threshold (pixel)
 show_track: 1           # publish tracking image as topic
 equalize: 1             # if image is too dark or light, trun on equalize to find enough features
-fisheye: 1              # if using fisheye, trun on it. A circle mask will be loaded to remove edge noisy points
+fisheye: 0              # if using fisheye, trun on it. A circle mask will be loaded to remove edge noisy points
 
 #optimization parameters
 max_solver_time: 0.04  # max solver itration time (ms), to guarantee real time

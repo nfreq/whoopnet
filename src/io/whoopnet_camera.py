@@ -79,7 +79,8 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, image_height)
 fps = cap.get(cv2.CAP_PROP_FPS)
 print(f"Video Capture FPS: {fps}")
 
-K,D,image_size = load_calibration_data("cal/hdzero_eco_960x720_cb_6px_reprojecterr.json")
+#K,D,image_size = load_calibration_data("cal/hdzero_eco_960x720_cb_6px_reprojecterr.json")
+K,D,image_size = load_calibration_data("cal/hdzero_eco_960x720_cb_0_67px_reprojecterr.json")
 map1, map2 = cv2.fisheye.initUndistortRectifyMap(K, D, np.eye(3), K, image_size, cv2.CV_16SC2)
 
 rclpy.init()
