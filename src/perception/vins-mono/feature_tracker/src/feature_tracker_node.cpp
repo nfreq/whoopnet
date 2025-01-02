@@ -56,9 +56,6 @@ void img_callback(sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg)
     if (toSec(img_msg->header.stamp) - last_image_time > 1.0 || toSec(img_msg->header.stamp) < last_image_time) 
     {
         RCLCPP_WARN(node->get_logger(), "Detected RTC timestamp discontinuity. Current: %f, Last: %f, Difference: %f", toSec(img_msg->header.stamp), last_image_time, toSec(img_msg->header.stamp) - last_image_time);
-
-        RCLCPP_WARN(node->get_logger(), "Detected RTC timestamp discontinuity. Resetting feature tracker.");
-        RCLCPP_WARN(node->get_logger(), "%s image discontinue! reset the feature tracker!", AT);
         first_image_flag = true;
         last_image_time = 0;
         pub_count = 1;
@@ -173,7 +170,7 @@ if (ptr->image.type() != CV_8UC1 && ptr->image.type() != CV_16UC1)
         feature_points->channels.push_back(v_of_point);
         feature_points->channels.push_back(velocity_x_of_point);
         feature_points->channels.push_back(velocity_y_of_point);
-        RCLCPP_DEBUG(node->get_logger(), "%s publish %f, at %f", AT, toSec(feature_points->header.stamp), rclcpp::Clock().now().nanoseconds() / 1e9);
+        //RCLCPP_INFO(node->get_logger(), "%s publish %f, at %f", AT, toSec(feature_points->header.stamp), rclcpp::Clock().now().nanoseconds() / 1e9);
         // skip the first image; since no optical speed on first image
         if (!init_pub)
         {
@@ -239,27 +236,13 @@ int main(int argc, char **argv)
         }
     }
 
-    //auto sub_img = node->create_subscription<sensor_msgs::msg::Image>(IMAGE_TOPIC, rclcpp::QoS(rclcpp::KeepLast(100)), img_callback);
+    rclcpp::QoS qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_default)).reliability(rclcpp::ReliabilityPolicy::Reliable);
+
     auto sub_img = node->create_subscription<sensor_msgs::msg::CompressedImage>(IMAGE_TOPIC,rclcpp::QoS(rclcpp::KeepLast(100)),img_callback);
+    pub_img = node->create_publisher<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/feature", qos);
+    pub_match = node->create_publisher<sensor_msgs::msg::CompressedImage>("whoopnet/perception/vins_mono/feature_tracker/feature_img", qos);
+    pub_restart = node->create_publisher<std_msgs::msg::Bool>("whoopnet/perception/vins_mono/feature_tracker/restart",qos);
 
-    //pub_img = node->create_publisher<sensor_msgs::msg::PointCloud>("/whoopnet/perception/vins_mono/feature", 1000);
-    //pub_match = node->create_publisher<sensor_msgs::msg::CompressedImage>("whoopnet/perception/vins_mono/feature_tracker/feature_img",1000);
-
-    pub_img = node->create_publisher<sensor_msgs::msg::PointCloud>("/whoopnet/perception/vins_mono/feature", 
-                rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_default)).reliability(rclcpp::ReliabilityPolicy::Reliable));
-
-    pub_match = node->create_publisher<sensor_msgs::msg::CompressedImage>("whoopnet/perception/vins_mono/feature_tracker/feature_img", 
-                rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_default)).reliability(rclcpp::ReliabilityPolicy::Reliable));
-
-    pub_restart = node->create_publisher<std_msgs::msg::Bool>("/whoopnet/perception/vins_mono/feature_tracker/restart",1000);
-    /*
-    if (SHOW_TRACK)
-        cv::namedWindow("vis", cv::WINDOW_NORMAL);
-    */
     rclcpp::spin(node);
     return 0;
 }
-
-
-// new points velocity is 0, pub or not?
-// track cnt > 1 pub?

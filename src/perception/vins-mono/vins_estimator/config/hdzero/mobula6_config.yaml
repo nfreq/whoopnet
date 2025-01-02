@@ -6,8 +6,8 @@
 
 
 #common parameters
-imu_topic: "/whoopnet/io/imu"
-image_topic: "/whoopnet/io/camera_compressed"
+imu_topic: "whoopnet/io/imu"
+image_topic: "whoopnet/io/camera_compressed"
 output_path: "/mnt/weightstorage/nfreq/whoopnet/log/vins-mono/output"
 
 #camera calibration 
@@ -76,7 +76,7 @@ pose_graph_save_path: "/mnt/weightstorage/nfreq/whoopnet/log/pose_graph/" # save
 
 #unsynchronization parameters
 estimate_td: 0                      # online estimate time offset between camera and imu
-td: 0.001                             # initial value of time offset. unit: s. readed image clock + td = real image clock (IMU clock)
+td: 0.001                           # initial value of time offset. unit: s. readed image clock + td = real image clock (IMU clock)
 
 #rolling shutter parameters
 rolling_shutter: 1                  # 0: global shutter camera, 1: rolling shutter camera

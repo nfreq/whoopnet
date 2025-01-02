@@ -550,7 +550,7 @@ int main(int argc, char **argv)
     pub_camera_pose_visual = node->create_publisher<visualization_msgs::msg::MarkerArray>("/pose_graph/camera_pose_visual", 1000);
     pub_key_odometrys = node->create_publisher<visualization_msgs::msg::Marker>("/pose_graph/key_odometrys", 1000);
     pub_vio_path = node->create_publisher<nav_msgs::msg::Path>("/pose_graph/no_loop_path", 1000);
-    pub_match_points = node->create_publisher<sensor_msgs::msg::PointCloud>("/pose_graph/match_points", 100);
+    pub_match_points = node->create_publisher<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/pose_graph/match_points", 100);
 
     std::thread measurement_process;
     std::thread keyboard_command_process;
