@@ -544,18 +544,18 @@ int main(int argc, char **argv)
                               .history(rclcpp::HistoryPolicy::KeepLast)
                               .keep_last(100);
 
-    auto sub_imu_forward = node->create_subscription<nav_msgs::msg::Odometry>("/vins_estimator/imu_propagate", qos_besteffort, imu_forward_callback);
-    auto sub_vio = node->create_subscription<nav_msgs::msg::Odometry>("/vins_estimator/odometry", qos_besteffort, vio_callback);
+    auto sub_imu_forward = node->create_subscription<nav_msgs::msg::Odometry>("whoopnet/perception/vins_mono/vins_estimator/imu_propagate", qos_besteffort, imu_forward_callback);
+    auto sub_vio = node->create_subscription<nav_msgs::msg::Odometry>("whoopnet/perception/vins_mono/vins_estimator/odometry", qos_besteffort, vio_callback);
     auto sub_image = node->create_subscription<sensor_msgs::msg::Image>(IMAGE_TOPIC, qos_besteffort, image_callback);
-    auto sub_pose = node->create_subscription<nav_msgs::msg::Odometry>("/vins_estimator/keyframe_pose", qos_besteffort, pose_callback);
-    auto sub_extrinsic = node->create_subscription<nav_msgs::msg::Odometry>("/vins_estimator/extrinsic", qos_besteffort, extrinsic_callback);
-    auto sub_point = node->create_subscription<sensor_msgs::msg::PointCloud>("/vins_estimator/keyframe_point", qos_besteffort, point_callback);
-    auto sub_relo_relative_pose = node->create_subscription<nav_msgs::msg::Odometry>("/vins_estimator/relo_relative_pose", qos_besteffort, relo_relative_pose_callback);
+    auto sub_pose = node->create_subscription<nav_msgs::msg::Odometry>("whoopnet/perception/vins_mono/vins_estimator/keyframe_pose", qos_besteffort, pose_callback);
+    auto sub_extrinsic = node->create_subscription<nav_msgs::msg::Odometry>("whoopnet/perception/vins_mono/vins_estimator/extrinsic", qos_besteffort, extrinsic_callback);
+    auto sub_point = node->create_subscription<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/vins_estimator/keyframe_point", qos_besteffort, point_callback);
+    auto sub_relo_relative_pose = node->create_subscription<nav_msgs::msg::Odometry>("whoopnet/perception/vins_mono/vins_estimator/relo_relative_pose", qos_besteffort, relo_relative_pose_callback);
 
-    pub_match_img = node->create_publisher<sensor_msgs::msg::Image>("/pose_graph/match_image", qos_besteffort);
-    pub_camera_pose_visual = node->create_publisher<visualization_msgs::msg::MarkerArray>("/pose_graph/camera_pose_visual", qos_besteffort);
-    pub_key_odometrys = node->create_publisher<visualization_msgs::msg::Marker>("/pose_graph/key_odometrys", qos_besteffort);
-    pub_vio_path = node->create_publisher<nav_msgs::msg::Path>("/pose_graph/no_loop_path", qos_besteffort);
+    pub_match_img = node->create_publisher<sensor_msgs::msg::Image>("whoopnet/perception/vins_mono/pose_graph/match_image", qos_besteffort);
+    pub_camera_pose_visual = node->create_publisher<visualization_msgs::msg::MarkerArray>("whoopnet/perception/vins_mono/pose_graph/camera_pose_visual", qos_besteffort);
+    pub_key_odometrys = node->create_publisher<visualization_msgs::msg::Marker>("whoopnet/perception/vins_mono/pose_graph/key_odometrys", qos_besteffort);
+    pub_vio_path = node->create_publisher<nav_msgs::msg::Path>("whoopnet/perception/vins_mono/pose_graph/no_loop_path", qos_besteffort);
     pub_match_points = node->create_publisher<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/pose_graph/match_points", qos_besteffort);
 
     std::thread measurement_process;

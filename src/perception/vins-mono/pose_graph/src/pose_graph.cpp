@@ -26,11 +26,11 @@ PoseGraph::~PoseGraph()
 
 void PoseGraph::registerPub(const rclcpp::Node::SharedPtr& n)
 {
-    pub_pg_path = n->create_publisher<nav_msgs::msg::Path>("/pose_graph/pose_graph_path", 1000);
-    pub_base_path = n->create_publisher<nav_msgs::msg::Path>("/pose_graph/base_path", 1000);
-    pub_pose_graph = n->create_publisher<visualization_msgs::msg::MarkerArray>("/pose_graph/pose_graph", 1000);
+    pub_pg_path = n->create_publisher<nav_msgs::msg::Path>("whoopnet/perception/vins_mono/pose_graph/pose_graph_path", 1000);
+    pub_base_path = n->create_publisher<nav_msgs::msg::Path>("whoopnet/perception/vins_mono/pose_graph/base_path", 1000);
+    pub_pose_graph = n->create_publisher<visualization_msgs::msg::MarkerArray>("whoopnet/perception/vins_mono/pose_graph/pose_graph", 1000);
     for (int i = 1; i < 10; i++)
-        pub_path[i] = n->create_publisher<nav_msgs::msg::Path>("/pose_graph/path_" + to_string(i), 1000);
+        pub_path[i] = n->create_publisher<nav_msgs::msg::Path>("whoopnet/perception/vins_mono/pose_graph/path_" + to_string(i), 1000);
 }
 
 void PoseGraph::loadVocabulary(std::string voc_path)
