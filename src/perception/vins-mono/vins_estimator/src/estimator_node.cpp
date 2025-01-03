@@ -363,7 +363,8 @@ int main(int argc, char **argv)
                               .keep_last(100);
     auto sub_imu = node->create_subscription<sensor_msgs::msg::Imu>(IMU_TOPIC, qos_besteffort, imu_callback);
     auto sub_image = node->create_subscription<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/feature", qos_besteffort, feature_callback);
-    auto sub_restart = node->create_subscription<std_msgs::msg::Bool>("whoopnet/perception/vins_mono/feature_tracker/restart", qos_reliable, restart_callback);
+    auto sub_restart = node->create_subscription<std_msgs::msg::Bool>("whoopnet/perception/vins_mono/estimator/restart", qos_reliable, restart_callback);
+    auto sub_restart_manual = node->create_subscription<std_msgs::msg::Bool>("whoopnet/perception/vins_mono/estimator/restart_manual", qos_reliable, restart_callback);
     auto sub_relo_points = node->create_subscription<sensor_msgs::msg::PointCloud>("whoopnet/perception/vins_mono/pose_graph/match_points", qos_reliable, relocalization_callback);
 
     std::thread measurement_process{process};
