@@ -1,6 +1,6 @@
 %YAML:1.0
 ########### HDZERO Mobula6 2024 ECO
-# HDZERO ECO Runcam
+# HDZERO ECO Camera
 # https://vision.in.tum.de/data/datasets/visual-inertial-dataset#geometric_calibration
 # fisheye (1280x720) --> CROP (960x720)
 
@@ -28,10 +28,35 @@ projection_parameters:
 
 # color_order: "BGR"
 # Extrinsic parameter between IMU and Camera.
-estimate_extrinsic: 2   # 0  Have an accurate extrinsic parameters. We will trust the following imu^R_cam, imu^T_cam, don't change it.
+estimate_extrinsic: 1   # 0  Have an accurate extrinsic parameters. We will trust the following imu^R_cam, imu^T_cam, don't change it.
                         # 1  Have an initial guess about extrinsic parameters. We will optimize around your initial guess.
                         # 2  Don't know anything about extrinsic parameters. You don't need to give R,T. We will try to calibrate it. Do some rotation movement at beginning.                        
 #If you choose 0 or 1, you should write down the following matrix.
+
+#initial extrinsic rotation (estimated)
+#  0.232544   0.386513   0.89248
+# -0.972444   0.108055   0.206582
+# -0.0165909 -0.915932   0.40099
+
+extrinsicRotation: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 4.1661583295396709e-02, 3.7444450744023305e-01,
+       9.2631291868631616e-01, -9.9865289932111756e-01,
+       4.4307211319675410e-02, 2.7004771848681219e-02,
+       -3.0930553742964551e-02, -9.2619014347644335e-01,
+       3.7578600156503805e-01 ]
+
+extrinsicTranslation: !!opencv-matrix
+   rows: 3
+   cols: 1
+   dt: d
+   data: [ 1.5090705911833755e-02, -2.0595709195644781e-03,
+       4.7822577397624411e-02 ]
+
+
+
 #Rotation from camera frame to imu frame, imu^R_cam
 #extrinsicRotation: !!opencv-matrix
 #   rows: 3
@@ -40,6 +65,8 @@ estimate_extrinsic: 2   # 0  Have an accurate extrinsic parameters. We will trus
 #   data: [0.0148655429818, -0.999880929698, 0.00414029679422,
 #           0.999557249008, 0.0149672133247, 0.025715529948, 
 #           -0.0257744366974, 0.00375618835797, 0.999660727178]
+
+
 #Translation from camera frame to imu frame, imu^T_cam
 #extrinsicTranslation: !!opencv-matrix
 #   rows: 3
@@ -50,7 +77,7 @@ estimate_extrinsic: 2   # 0  Have an accurate extrinsic parameters. We will trus
 #feature traker paprameters
 max_cnt: 150            # max feature number in feature tracking
 min_dist: 10            # min distance between two features 
-freq: 15                # frequence (Hz) of publish tracking result. At least 10Hz for good estimation. If set 0, the frequence will be same as raw image 
+freq: 10                # frequence (Hz) of publish tracking result. At least 10Hz for good estimation. If set 0, the frequence will be same as raw image 
 F_threshold: 2.0 #1.0   # ransac threshold (pixel)
 show_track: 1           # publish tracking image as topic
 equalize: 1             # if image is too dark or light, trun on equalize to find enough features
