@@ -1,4 +1,3 @@
-from whoopnet_io import WhoopnetIO
 import logging
 from inputs import devices, get_gamepad
 import threading
@@ -7,6 +6,7 @@ from queue import Queue, Empty
 from enum import Enum
 import random 
 import math
+from whoopnet_io import WhoopnetIO
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -200,9 +200,13 @@ class RCMixer(threading.Thread):
                 if time.time() > self.last_ai_action + 0.02:
                     self.last_ai_action = time.time()
                     elapsed_time = time.time() - self.sine_start
-                    wave = math.sin(2 * math.pi * elapsed_time / 3)
-                    ai_action = int(1500 + wave * 200)
-                    self.mixer.update_ai(chT=ai_action)
+                    wave1 = math.sin(2 * math.pi * elapsed_time / 3)
+                    ai_action1 = int(1500 + wave1 * 200)
+
+                    wave2 = math.sin(2 * math.pi * elapsed_time / 0.75)
+                    ai_action2 = int(1500 + wave2 * 100)
+                    self.mixer.update_ai(chT=ai_action1, chR=ai_action2)
+
 
             mixed_channels = self.mixer.mix_channels(self.mix_active)
             self.whoopnet_io.set_rc_channels(**mixed_channels)
