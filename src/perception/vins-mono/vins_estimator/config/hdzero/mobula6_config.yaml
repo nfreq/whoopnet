@@ -1,5 +1,5 @@
 %YAML:1.0
-########### HDZERO Mobula6
+########### HDZERO Mobula6 2024 ECO
 # HDZERO ECO Runcam
 # https://vision.in.tum.de/data/datasets/visual-inertial-dataset#geometric_calibration
 # fisheye (1280x720) --> CROP (960x720)
@@ -49,30 +49,30 @@ estimate_extrinsic: 2   # 0  Have an accurate extrinsic parameters. We will trus
 
 #feature traker paprameters
 max_cnt: 150            # max feature number in feature tracking
-min_dist: 20            # min distance between two features 
+min_dist: 10            # min distance between two features 
 freq: 15                # frequence (Hz) of publish tracking result. At least 10Hz for good estimation. If set 0, the frequence will be same as raw image 
-F_threshold: 2.0 #1.0        # ransac threshold (pixel)
+F_threshold: 2.0 #1.0   # ransac threshold (pixel)
 show_track: 1           # publish tracking image as topic
 equalize: 1             # if image is too dark or light, trun on equalize to find enough features
 fisheye: 0              # if using fisheye, trun on it. A circle mask will be loaded to remove edge noisy points
 
 #optimization parameters
-max_solver_time: 0.04  # max solver itration time (ms), to guarantee real time
-max_num_iterations: 8   # max solver itrations, to guarantee real time
-keyframe_parallax: 10.0 # keyframe selection threshold (pixel)
+max_solver_time: 0.04         # max solver itration time (ms), to guarantee real time
+max_num_iterations: 10 #8     # max solver itrations, to guarantee real time
+keyframe_parallax: 5.0 #10.0  # keyframe selection threshold (pixel)
 
 #imu parameters       The more accurate parameters you provide, the better performance
-acc_n: 0.02333807072  #  accelerometer_noise_density
-gyr_n: 0.0023797342   #  gyroscope_noise_density
-acc_w: 0.00140908995  #  accelerometer_random_walk
-gyr_w: 0.00035510868  #  gyroscope_random_walk
-g_norm: 9.81007     # gravity magnitude
+acc_n: 0.02333807072  # accelerometer_noise_density
+gyr_n: 0.0023797342   # gyroscope_noise_density
+acc_w: 0.00140908995  # accelerometer_random_walk
+gyr_w: 0.00035510868  # gyroscope_random_walk
+g_norm: 9.81007       # gravity magnitude
 
 #loop closure parameters
-loop_closure: 1                 # start loop closure
-load_previous_pose_graph: 0     # load and reuse previous pose graph; load from 'pose_graph_save_path'
-fast_relocalization: 1          # useful in real-time and large project
-pose_graph_save_path: "/mnt/weightstorage/nfreq/whoopnet/log/pose_graph/" # save and load path
+loop_closure: 1                                                             # start loop closure
+load_previous_pose_graph: 0                                                 # load and reuse previous pose graph; load from 'pose_graph_save_path'
+fast_relocalization: 1                                                      # useful in real-time and large project
+pose_graph_save_path: "/mnt/weightstorage/nfreq/whoopnet/log/pose_graph/"   # save and load path
 
 #unsynchronization parameters
 estimate_td: 1                      # online estimate time offset between camera and imu
